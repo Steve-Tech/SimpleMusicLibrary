@@ -1,0 +1,38 @@
+{% extends 'layout.html' %}
+{% block content %}
+    {% set album = (album_songs.items()|list)[0] %}
+    <div id="album" class="row">
+        <img class="col-3 bg-img" src="/song/{{ album[0] }}?image=true">
+        <div class="col-9 d-flex flex-column justify-content-center">
+            <h1>{{ album[1].album }}</h1>
+            <h2>{{ album[1].albumartist }}</h2>
+        </div>
+    </div>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">#&emsp;</th> {# &emsp; is used for an em width space to stop the play button jiggling #}
+            <th scope="col">Title</th>
+            <th scope="col">Album</th>
+            <th scope="col">Artist</th>
+            <th scope="col">Date</th>
+            <th scope="col">Duration</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        {% for id, song in album_songs.items() %}
+            <tr role="button" data-id="{{ id }}" onclick="queue.add_all({{ id }})" oncontextmenu="open_menu(event, {{ id }})"
+                title="{{ ((song.filesize/1048576)|round(1)|string + "MB") if song.filesize }}, {{ ((song.samplerate/1000)|string + "KHz") if song.samplerate }}, {{ (song.bitrate|round(1)|string + "kbps") if song.bitrate }}">
+                <th scope="row">{{ song.track }}</th>
+                <td>{{ song.title }}</td>
+                <td>{{ song.album }}</td>
+                <td>{{ song.artist }}</td>
+                <td>{{ song.year }}</td>
+                <td>{{ song.duration | format_time }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

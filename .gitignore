@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+venv/
+
+# PyCharm
+.idea/
+
+# User Files
+#settings.json
+database.db
+
+# Bootswatch files
+static/css/themes/

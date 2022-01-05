@@ -1,0 +1,72 @@
+{% extends 'html.html' %}
+{% block layout %}
+    {% include 'navbar.html' %}
+
+    <div class="modal fade" id="loginModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+         aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Login Required</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form class="user" method="post">
+                        {% for category, message in get_flashed_messages(with_categories=true) %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                        aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                        {{ form.csrf_token }}
+                        <div class="mb-3">
+                            {{ form.username.label(class_="visually-hidden") }}
+                            {{ form.username(placeholder="Username", class_="form-control form-control-user" +
+                                            (" is-invalid" if form.username.errors or get_flashed_messages() else "")) }}
+                            {% if form.username.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.username.errors[0] }}
+                                </div>
+                            {% endif %}</div>
+                        <div class="mb-3">
+                            {{ form.password.label(class_="visually-hidden") }}
+                            {{ form.password(placeholder="Password", class_="form-control form-control-user" +
+                                            (" is-invalid" if form.password.errors or get_flashed_messages() else "")) }}
+                            {% if form.password.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.password.errors[0] }}
+                                </div>
+                            {% endif %}</div>
+                        <div class="mb-3">
+                            <div class="custom-control custom-checkbox small">
+                                <div class="form-check">
+                                    {{ form.remember_me(class_="form-check-input custom-control-input") }}
+                                    {{ form.remember_me.label(class_="form-check-label" +
+                                                    (" is-invalid" if form.remember_me.errors else "")) }}
+                                    {% if form.remember_me.errors %}
+                                        <div class="invalid-feedback">
+                                            {{ form.remember_me.errors[0] }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {{ form.submit(class_="btn btn-primary d-block btn-user w-100") }}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'player.html' %}
+    {#<footer class="text-center">#}
+    {#    <hr>#}
+    {#    <p>&copy; Copyright Stephen Horvath 2021</p>#}
+    {#</footer>#}
+
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script>
+        new bootstrap.Modal(document.getElementById('loginModal')).show()
+    </script>
+{% endblock %}

@@ -1,0 +1,8 @@
+{
+  "database": "sqlite:///database.db",
+  "secret_key": "replace with something random",
+  "library": "M:\\Music",
+  "users": ["admin", "family", "guest"],
+  "watchdog": true,
+  "ignore_prefix": ["0tmp", "1tmp"]
+}

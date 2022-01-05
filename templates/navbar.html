@@ -1,0 +1,37 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary" id="navbar">
+    <div class="container">
+        <a class="navbar-brand" href="/">SimpleMusicLibrary</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarLinks"
+                aria-controls="navbarLinks" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarLinks">
+            <ul class="navbar-nav me-auto">
+                {% set navbar = {"Home": "/", "Albums": "/albums", "Artists": "/artists"} %}
+                {% for page, href in navbar.items() %}
+                    {% if page == currentpage or (page == title and currentpage is not defined) %}
+                        <li class="nav-item">
+                            <a class="nav-link active" data-page="{{ href }}">{{ page }}
+                                <span class="visually-hidden">(current)</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" data-page="{{ href }}">{{ page }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+
+      <form id="search_form" class="d-flex mx-2" method="get" action="/search">
+          <label for="search" class="visually-hidden">Search</label>
+          <input id="search" name="q" class="form-control" type="text" placeholder="Search" title="Search" oninput="live_search()" value="{{ query }}">
+        <button class="btn btn-light ms-sm-2" type="submit">&#x1F50D;</button>
+      </form>
+            <div class="my-2 my-lg-0">
+                <button class="btn btn-light my-2 my-sm-0" type="button" data-bs-toggle="modal" data-bs-target="#userModal">&#x2699;</button>
+{#                <a class="btn btn-light my-2 my-sm-0" href="/logout?next={{ request.full_path }}">&#x2699;</a>#}
+            </div>
+        </div>
+    </div>
+</nav>

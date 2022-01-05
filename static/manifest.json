@@ -1,0 +1,16 @@
+{
+  "short_name": "SimpleMusicLibrary",
+  "name": "SimpleMusicLibrary",
+  "description": "A Simple Bootstrap Music Library",
+  "icons": [
+    {
+      "src": "/static/img/unknown.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0d6efd",
+  "display": "standalone",
+  "theme_color": "#0d6efd"
+}

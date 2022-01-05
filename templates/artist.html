@@ -1,0 +1,46 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <h1>{{ (albums.values()|list)[0].artist }}</h1>
+    <h5>Albums</h5>
+    <div class="row d-flex justify-content-around">
+        {% for id, song in albums.items() %}
+            <div class="card bg-secondary col-2 m-1 p-0 hover bg-img" role="button"
+                 data-page="/albums/{{ id }}" data-id="{{ id }}">
+                <img class="card-img my-auto" src="/song/{{ id }}?image=true" alt="Card image" loading="lazy">
+                <div class="card-img-overlay text-center p-0 d-flex align-content-between flex-column">
+                    <span class="text-light fw-bold position-absolute top-0 bg-dark bg-opacity-50 w-100">{{ song.album }}</span>
+                    <span class="text-light small position-absolute bottom-0 bg-dark bg-opacity-50 w-100">{{ song.year }}</span>
+                    <span class="display-2 show-hover position-absolute top-50 start-50 translate-middle">&#x25B6;</span>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <h5>Songs</h5>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">#&emsp;</th>
+            {# &emsp; is used for an em width space to stop the play button jiggling #}
+            <th scope="col">Title</th>
+            <th scope="col">Album</th>
+            <th scope="col">Artist</th>
+            <th scope="col">Date</th>
+            <th scope="col">Duration</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        {% for id, song in artist.items() %}
+            <tr role="button" data-id="{{ id }}" onclick="queue.add_all({{ id }})" oncontextmenu="open_menu(event, {{ id }})"
+                title="{{ ((song.filesize/1048576)|round(1)|string + "MB") if song.filesize }}, {{ ((song.samplerate/1000)|string + "KHz") if song.samplerate }}, {{ (song.bitrate|round(1)|string + "kbps") if song.bitrate }}">
+                <th scope="row">{{ song.track }}</th>
+                <td>{{ song.title }}</td>
+                <td>{{ song.album }}</td>
+                <td>{{ song.artist }}</td>
+                <td>{{ song.year }}</td>
+                <td>{{ song.duration | format_time }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

@@ -1,0 +1,102 @@
+<div class="navbar fixed-bottom navbar-expand-lg navbar-dark text-light bg-dark user-select-none" id="player">
+    <div class="container-fluid d-flex flex-column">
+        <div class="d-flex justify-content-center col-12 col-lg-7">
+            <label class="col-3 col-md-2 col-xl-1 text-end me-4" id="current_time" for="slider">0:00</label>
+            <div class="col-6 col-md-8 col-xl-10">
+                <input id="slider" type="range" class="form-range" min="0" max="0" value="0" step="0.0001">
+            </div>
+            <span class="text-start ms-4 col-3 col-md-2 col-xl-1" id="max_time">0:00</span>
+        </div>
+        <div class="row col-12 col-lg-6">
+            <div class="col-4">
+                <div class="d-none d-sm-flex align-items-center invisible" id="info">
+                    <img id="image" class="bg-img" src="" alt="">
+                    <div class="d-flex flex-column ms-1">
+                        <span id="title"></span>
+                        <span id="artist" class="small text-muted"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4 d-flex justify-content-center align-items-center">
+                <span id="shuffle" class="h5 hover off" role="button">&#x1F500;</span>
+                <span id="back" class="h5 hover" role="button">&#x23EE;</span>
+                <span id="play" class="h1 hover" role="button">&#x25B6;</span>
+                <span id="forward" class="h5 hover" role="button">&#x23ED;</span>
+                <span id="loop" class="h5 hover off" role="button">&#x1F501;</span>
+            </div>
+            <div class="col-4 d-none d-sm-flex align-items-center">
+                <span role="button" id="queue" class="h5 hover" data-bs-toggle="modal" data-bs-target="#queueModal">
+                    ℹ️
+                </span>
+                <label id="mute" for="volume" aria-label="Volume" class="me-2 h5 hover">🔊</label>
+                <input id="volume" type="range" class="form-range" min="0" max="1" value="1" step="0.01">
+            </div>
+        </div>
+    </div>
+</div>
+{% if disable is undefined %}
+    <ul id="menu" class="dropdown-menu">
+        <li><a class="dropdown-item" role="button" onclick="player.start(selected)">Play</a></li>
+        <li><a class="dropdown-item" role="button" onclick="queue.add_all(selected)">Play all</a></li>
+        <li><a class="dropdown-item" role="button" onclick="queue.push(selected)">Add to queue</a></li>
+        <li><a class="dropdown-item" role="button" onclick="page('/albums/'+selected)">Go to Album</a></li>
+        <li><a class="dropdown-item" role="button" onclick="page('/artists/'+selected)">Go to Artist</a></li>
+    </ul>
+
+    <ul id="queue_menu" class="dropdown-menu">
+        <li><a class="dropdown-item" role="button" onclick="player.start(queue.array[selected])">Play now</a></li>
+        <li><a class="dropdown-item" role="button" onclick="queue.splice(selected, 1);update_modal()">Remove from
+            queue</a></li>
+        <li><a class="dropdown-item" role="button" onclick="queue.move(-1, selected)">Move Up</a></li>
+        <li><a class="dropdown-item" role="button" onclick="queue.move(1, selected)">Move Down</a></li>
+        <li><a class="dropdown-item" role="button" onclick="page('/albums/'+queue.array[selected])">Go to Album</a></li>
+        <li><a class="dropdown-item" role="button" onclick="page('/artists/'+queue.array[selected])">Go to Artist</a></li>
+    </ul>
+
+    <div id="toast" class="toast fixed-bottom start-50 translate-middle-x" role="alert" aria-live="assertive"
+         aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body"></div>
+            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="queueModal" tabindex="-1" aria-labelledby="queueModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="queueModalLabel">Your Queue</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">#&emsp;</th>
+                            {# &emsp; is used for an em width space to stop the play button jiggling #}
+                            <th scope="col">Title</th>
+                            <th scope="col">Album</th>
+                            <th scope="col">Artist</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Duration</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer justify-content-between">
+                <span class="text-muted">
+
+                </span>
+                    <div>
+                        <button type="button" class="btn btn-secondary" onclick="queue.clear()">Clear
+                        </button>
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Done</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
