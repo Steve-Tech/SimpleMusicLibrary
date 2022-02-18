@@ -4,6 +4,7 @@ from hashlib import blake2b
 from os.path import dirname, join, split, exists
 from os import walk, makedirs
 from sys import argv
+from tqdm import tqdm
 
 import requests
 from sqlalchemy import inspect
@@ -26,8 +27,8 @@ def download():
 
     print("Bootswatch Version: ", bootswatch["version"])
 
-    for theme in bootswatch["themes"]:
-        print("Downloading: ", theme["name"])
+    for theme in (progress := tqdm(bootswatch["themes"], desc="Downloading Bootswatch Themes")):
+        progress.set_postfix_str("Downloading: " + theme["name"])
         r = requests.get(theme["cssMin"])
         with open(f"{themes_dir}/{theme['name'].title()}.css", 'wb') as f:
             f.write(r.content)
@@ -66,22 +67,25 @@ def users():
 
 def scan():
     print("------ Deleting deleted files ------")
-    for id, file in db.session.query(Music.id, Music.file).all():
+    for id, file in (progress := tqdm(db.session.query(Music.id, Music.file).all(), desc="Finding deleted files")):
         if not exists(file):
-            print("Deleting: ", file)
+            # print("Deleting: ", file)
+            progress.set_postfix_str("Deleting: " + file)
             Music.query.filter_by(id=id).delete()
             db.session.flush()
     db.session.commit()
 
     print("------ Finding new files ------")
-    for root, dirs, files in walk(settings['library']):
+    for root, dirs, files in (progress := tqdm(walk(settings['library']), desc="Finding new files")):
         for i, filename in enumerate(sorted(files)):
             path = join(root, filename)
-            print("Found: ", path)
+            # progress.set_postfix_str(path)
+            # print("Found: ", path)
             if not db.session.query(Music.query.filter_by(file=path).exists()).scalar():
+                progress.set_postfix_str("Reading: " + path)
                 try:
                     meta = TinyTag.get(path, image=True)
-                    print("Adding: ", meta)
+                    # print("Adding: ", meta)
                     new_meta = meta.as_dict()
                     new_meta['title'] = meta.title or filename
                     new_meta['album'] = meta.album or split(dirname(path))[1]
@@ -111,7 +115,10 @@ def scan():
                     db.session.flush()
 
                 except TinyTagException as e:
-                    print("Error: ", e)
+                    pass
+                    # print("Error: ", e)
+            else:
+                progress.set_postfix_str("Skipped: " + path)
     db.session.commit()
 
 
