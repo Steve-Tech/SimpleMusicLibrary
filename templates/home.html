@@ -11,7 +11,7 @@
                 <div class="card bg-secondary col-2 m-1 p-0 hover bg-img {{ "d-none d-lg-flex" if loop.index > 8 else ("d-none d-md-flex" if loop.index > 6 else "d-flex") }}"
                      role="button" onclick="player.start({{ id }})" oncontextmenu="open_menu(event, {{ id }})"
                      data-id="{{ id }}">
-                    <img class="card-img my-auto" src="/song/{{ id }}?image=true" alt="Card image" loading="lazy">
+                    <img class="card-img my-auto" src="/song/{{ id }}/image" alt="Card image" loading="lazy">
                     <div class="card-img-overlay text-center p-0 d-flex align-content-between flex-column">
                         <span class="text-light fw-bold position-absolute top-0 bg-dark bg-opacity-50 w-100">{{ song.title }}</span>
                         <span class="text-light small position-absolute bottom-0 bg-dark bg-opacity-50 w-100">{{ song.album }}</span>
@@ -27,7 +27,7 @@
                 <div class="card bg-secondary col-2 m-1 p-0 hover bg-img {{ "d-none d-lg-flex" if loop.index > 8 else ("d-none d-md-flex" if loop.index > 6 else "d-flex") }}"
                      role="button"
                      onclick="player.start({{ id }})" oncontextmenu="open_menu(event, {{ id }})" data-id="{{ id }}">
-                    <img class="card-img my-auto" src="/song/{{ id }}?image=true" alt="Card image" loading="lazy">
+                    <img class="card-img my-auto" src="/song/{{ id }}/image" alt="Card image" loading="lazy">
                     <div class="card-img-overlay text-center p-0 d-flex align-content-between flex-column">
                         <span class="text-light fw-bold position-absolute top-0 bg-dark bg-opacity-50 w-100">{{ song.title }}</span>
                         <span class="text-light small position-absolute bottom-0 bg-dark bg-opacity-50 w-100">{{ song.album }}</span>
@@ -42,7 +42,34 @@
         <h1>{{ ['Welcome', 'Hello', 'Hi'] | random }}
             {{ current_user.firstName or current_user.username.capitalize() }}{{ ['!', '.', ',', ''] | random }}</h1>
         <h2>Listen to some songs and they will appear here!</h2>
-        <a class="btn btn-primary" data-page="/albums">View Songs by Album</a>
-        <a class="btn btn-primary" data-page="/artists">View Songs by Artists</a>
+        <button class="btn btn-primary" data-page="/albums">View Songs by Album</button>
+        <button class="btn btn-primary" data-page="/artists">View Songs by Artists</button>
+    {% endif %}
+
+    {% if playlists and playlists[0][0] is not none %}
+        <hr>
+        <h2>Playlists</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col"></th>
+                <th scope="col">Name</th>
+                <th scope="col">Tracks</th>
+                <th scope="col">Duration</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            {% for playlist in playlists %}
+                <tr role="button" data-id="{{ playlist[0] }}" onclick="page('/playlists/{{ playlist[0] }}')"
+                    oncontextmenu="open_menu(event, {{ playlist[0] }})">
+                    <th scope="row" class="w-play"></th>
+                    <td>{{ playlist[1] or "Playlist" }}</td>
+                    <td>{{ playlist[2] }}</td>
+                    <td>{{ (playlist[3] or 0) | format_time }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     {% endif %}
 {% endblock %}

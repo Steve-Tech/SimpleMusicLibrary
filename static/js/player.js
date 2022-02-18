@@ -1,6 +1,16 @@
 "use strict";
 let songs = JSON.parse(document.getElementById('songs').innerText);
 let queue = new Queue(JSON.parse(document.getElementById('user_queue').innerText));
+let playlists = new Playlists({
+    "new": (response) => {
+        console.log(response)
+        let item = document.createElement("a")
+        item.classList.add("dropdown-item")
+        item.setAttribute("role", "button")
+        item.onclick = () => {playlists.add(response, selected)};
+        item.innerText = "New Playlist"
+        playlist_menu.appendChild(document.createElement("li").appendChild(item))
+    }});
 
 let selected;
 
@@ -61,6 +71,8 @@ class Player {
             if ("mediaSession" in navigator)
                 navigator.mediaSession.playbackState = "none";
             clearInterval(this.interval);
+            if (this.looping === 1)
+                queue.push(queue.current);
             queue.current = null;
             if (queue.length) {
                 this.start(queue.next);
@@ -107,19 +119,16 @@ class Player {
     start(id = queue.next, push = true) {
         if (!this.audio.paused)
             this.audio.pause()
-        this.audio.src = "/song/" + id;
+        this.audio.src = `/song/${id}`;
 
         this.play(false, id, () => {
-            if (queue.next === id) {
-                if (this.looping === 2)
-                    queue.push(id);
+            if (queue.next === id)
                 queue.shift();
-            }
             queue.play(id);
             this.display(id);
 
             let xhr = new XMLHttpRequest();
-            xhr.open("GET", "/song/" + id + "?listen=true", true);
+            xhr.open("GET", `/song/${id}/listen`, true);
             xhr.send();
         })
     }
@@ -138,7 +147,7 @@ class Player {
                     artist: song.artist,
                     album: song.album,
                     artwork: [
-                        {src: "/song/" + id + "?image=true"}
+                        {src: `/song/${id}/image`}
                     ]
                 });
 
@@ -151,7 +160,7 @@ class Player {
 
         }).catch((error) => {
             console.error(error)
-            show_toast("An Error Occurred: " + error.message);
+            show_toast(`An Error Occurred: ${error.message}`);
         });
 
         if (!fast) {
@@ -197,18 +206,22 @@ class Player {
 
 
     loop() {
-        switch (this.looping++) {
+        this.looping++
+        switch (this.looping) {
             case 1: // On
+                show_toast("Looping Queue")
                 loop_button.innerText = '🔁';
                 loop_button.classList.remove('off')
                 this.audio.loop = false;
                 break;
             case 2: // 1 song
+                show_toast("Looping Song")
                 loop_button.innerText = '🔂';
                 loop_button.classList.remove('off')
                 this.audio.loop = true;
                 break;
             default:
+                show_toast("Looping Off")
                 this.looping = 0;
                 loop_button.innerText = '🔁';
                 loop_button.classList.add('off');
@@ -226,7 +239,7 @@ class Player {
 
         if (id != null) {
             let song = songs[id];
-            song_image.src = "/song/" + id + "?image=true";
+            song_image.src = `/song/${id}/image`;
             song_title.innerText = song.title;
             song_artist.innerText = song.artist;
             song_info.classList.remove("invisible");
@@ -244,6 +257,7 @@ let player = new Player();
 
 let menu = elem_id("menu");
 let queue_menu = elem_id("queue_menu");
+let playlist_menu = elem_id("playlist_menu");
 
 let button = elem_id("play");
 let loop_button = elem_id("loop");
@@ -317,7 +331,10 @@ if ("mediaSession" in navigator) {
 
 button.addEventListener("click", () => player.toggle());
 loop_button.addEventListener("click", () => player.loop());
-shuffle_button.addEventListener("click", () => queue.shuffle());
+shuffle_button.addEventListener("click", () => {
+    queue.shuffle();
+    show_toast("Shuffled Queue");
+});
 forward_button.addEventListener("click", () => {
     if (queue.length) player.start(queue.shift());
     else player.time = player.duration
@@ -327,9 +344,13 @@ back_button.addEventListener("click", () => player.play());
 queue_modal.addEventListener('show.bs.modal', update_modal)
 
 
-document.body.addEventListener('click', () => {
-    menu.classList.remove("show")
-    queue_menu.classList.remove("show")
+document.body.addEventListener('click', (e) => {
+    console.log(e)
+    if (!(menu.contains(e.target) || queue_menu.contains(e.target) || playlist_menu.contains(e.target))) {
+        menu.classList.remove("show")
+        queue_menu.classList.remove("show")
+        playlist_menu.classList.remove("show")
+    }
 })
 
 window.addEventListener('popstate', (e) => {
@@ -360,7 +381,7 @@ function update_modal() {
         table.appendChild(tr);
     }
 
-    queue_modal.querySelector("div.modal-footer > span").innerText = queue.length + " Items"
+    queue_modal.querySelector("div.modal-footer > span").innerText = `${queue.length} Items`
     updateTables(table);
 }
 
@@ -371,6 +392,13 @@ function open_menu(e, id, e_menu = menu) {
     e_menu.style.top = e.pageY + "px";
     e_menu.style.left = e.pageX + "px";
     e_menu.classList.add("show")
+}
+
+
+function open_playlist_menu() {
+    playlist_menu.style.top = menu.style.top;
+    playlist_menu.style.left = menu.style.left;
+    playlist_menu.classList.add("show")
 }
 
 

@@ -28,29 +28,34 @@ class Music(db.Model):
     year = db.Column(db.Integer)
     duration = db.Column(db.Float)
     json = db.Column(db.String)
-    image = db.Column(db.LargeBinary)
+    image = db.Column(db.Integer)
+
+
+class CoverImages(db.Model):
+    hash = db.Column(db.Integer, primary_key=True)
+    image = db.Column(db.LargeBinary, db.ForeignKey("music.id", onupdate="CASCADE", ondelete="CASCADE"))
 
 
 class History(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user = db.Column(db.String, db.ForeignKey("users.username"), nullable=False)
-    song = db.Column(db.Integer, db.ForeignKey("music.id"), nullable=False)
+    user = db.Column(db.String, db.ForeignKey("users.username", onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
+    song = db.Column(db.Integer, db.ForeignKey("music.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
     date = db.Column(db.DateTime)
 
 
 class Queue(db.Model):
     index = db.Column(db.Integer, primary_key=True)
-    user = db.Column(db.String, db.ForeignKey("users.username"), primary_key=True)
-    song = db.Column(db.Integer, db.ForeignKey("music.id"), nullable=False)
+    user = db.Column(db.String, db.ForeignKey("users.username", onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
+    song = db.Column(db.Integer, db.ForeignKey("music.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
 
 
 class Playlists(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user = db.Column(db.String, db.ForeignKey("users.username"), nullable=False)
+    user = db.Column(db.String, db.ForeignKey("users.username", onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
     name = db.Column(db.String)
 
 
 class PlaylistSongs(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    playlist = db.Column(db.Integer, db.ForeignKey("playlists.id"), nullable=False)
-    song = db.Column(db.Integer, db.ForeignKey("music.id"), nullable=False)
+    playlist = db.Column(db.Integer, db.ForeignKey("playlists.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
+    song = db.Column(db.Integer, db.ForeignKey("music.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False)

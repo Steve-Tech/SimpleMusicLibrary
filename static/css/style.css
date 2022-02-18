@@ -26,6 +26,9 @@
 .off {
     filter: grayscale(1);
 }
+.w-play {
+    min-width: 2.5rem;
+}
 #image {
     max-height: 3rem;
     max-width: 3rem;

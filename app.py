@@ -5,7 +5,7 @@ from hashlib import blake2b
 from os import environ
 from os.path import split, dirname
 
-from flask import Flask, render_template, request, Response, send_file, flash, redirect, url_for
+from flask import Flask, render_template, request, Response, send_file, flash, redirect, url_for, abort
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from sqlalchemy import func, desc, or_
 from tinytag import TinyTag, TinyTagException
@@ -26,17 +26,17 @@ db.init_app(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-
 if "gunicorn" in environ.get("SERVER_SOFTWARE", ""):
     import logging
+
     gunicorn_logger = logging.getLogger('gunicorn.error')
     app.logger.handlers = gunicorn_logger.handlers
     app.logger.setLevel(gunicorn_logger.level)
 
-
 if settings['watchdog']:
     from watchdog.events import FileSystemEventHandler
     from watchdog.observers.polling import PollingObserver
+
 
     class WatchdogHandler(FileSystemEventHandler):
         @staticmethod
@@ -56,6 +56,12 @@ if settings['watchdog']:
                                 new_meta['disc'] = meta.disc
                                 new_meta['genre'] = meta.genre or split(dirname(dirname(dirname(new_path))))[1]
                                 new_meta['track'] = meta.track
+                                img_hash = None
+                                if image := meta.get_image():
+                                    img_hash = hash(image)
+                                    if not db.session.query(
+                                            CoverImages.query.filter_by(hash=img_hash).exists()).scalar():
+                                        db.session.add(CoverImages(hash=img_hash, image=image))
                                 db.session.add(
                                     Music(file=new_path,
                                           title=new_meta['title'],
@@ -68,7 +74,7 @@ if settings['watchdog']:
                                           year=meta.year,
                                           duration=meta.duration,
                                           json=json.dumps(new_meta),
-                                          image=meta.get_image()))
+                                          image=img_hash))
                                 db.session.commit()
 
                         except TinyTagException as e:
@@ -83,11 +89,17 @@ if settings['watchdog']:
                 self.create(event.src_path)
 
         def on_deleted(self, event):
-            if not event.is_directory:
-                app.logger.info("File Deleted - '%s'", event.src_path)
-                with app.app_context():
-                    Music.query.filter_by(file=event.src_path).delete()
-                    db.session.commit()
+            if settings["delete_allowed"]:
+                if not event.is_directory:
+                    app.logger.info("File Deleted - '%s'", event.src_path)
+                    with app.app_context():
+                        Music.query.filter_by(file=event.src_path).delete()
+                        db.session.commit()
+                else:
+                    if event.src_path == settings["library"]:
+                        settings["delete_allowed"] = False
+                        app.logger.error("Library was removed, deletion disabled, restart to re-enable")
+                        app.logger.warning("To remove all songs, drop tables in setup.py")
 
         def on_moved(self, event):
             if not event.is_directory:
@@ -106,6 +118,27 @@ if settings['watchdog']:
     observer.schedule(event_handler, path=settings['library'], recursive=True)
     app.logger.info("Starting Watchdog")
     observer.start()
+
+
+def get_user_queue():
+    return {k: json.loads(v) for k, v in db.session.query(Music.id, Music.json)
+        .join(Queue, Music.id == Queue.song and Queue.user == current_user.username)
+        .order_by(Queue.index).all()}
+
+
+def get_user_playlists():
+    return db.session.query(Playlists.id, Playlists.name).filter_by(user=current_user.username).all()
+
+
+@app.context_processor
+def inject_vars():
+    if current_user.is_authenticated:
+        return dict(
+            theme=request.args.get("theme") or current_user.theme,
+            playlists=get_user_playlists(),
+            # queue=list(user_queue().keys())
+        )
+    return []
 
 
 @app.template_filter()
@@ -133,26 +166,26 @@ def unauthorized_callback(message=None):  # Redirect if not logged in
 
 
 @app.route('/login', methods=['GET', 'POST'])
-def login():
+def route_login():
     if current_user.is_authenticated:
-        return redirect(url_for('home'))
+        return redirect(url_for('route_home'))
     form = LoginForm()
     if form.validate_on_submit():
         user = Users.query.get(form.username.data)
         if user is None or user.password != blake2b(bytes(form.password.data, "utf-8")).hexdigest():
             flash("Invalid username or password", "warning")
             app.logger.info("%s - username '%s' failed to log in", request.remote_addr, form.username.data)
-            return redirect(url_for('login'))
+            return redirect(url_for('route_login'))
         else:
             login_user(user, remember=form.remember_me.data)
             app.logger.info("%s - username '%s' logged in successfully", request.remote_addr, form.username.data)
-            return redirect(request.args.get("next") or url_for('home'))
+            return redirect(request.args.get("next") or url_for('route_home'))
     return render_template('login.html', title="Login", form=form, disable=True)
 
 
 @app.route('/user', methods=['POST'])
 @login_required
-def user_data():
+def route_user():
     form = UserData(firstName=current_user.firstName, lastName=current_user.lastName, theme=current_user.theme)
     if form.validate_on_submit():
         user = Users.query.get(current_user.username)
@@ -161,12 +194,12 @@ def user_data():
         user.password = blake2b(bytes(form.password.data, "utf-8")).hexdigest()
         user.theme = form.theme.data
         db.session.commit()
-    return redirect(request.args.get("next") or url_for('home'))
+    return redirect(request.args.get("next") or url_for('route_home'))
 
 
 @app.route('/queue', methods=['POST'])
 @login_required
-def queue():
+def route_queue():
     data = request.json
     app.logger.debug("Queue - '%s' = '%s'", current_user.username, data)
     db.session.execute(Queue.__table__.delete().where(Queue.user == current_user.username))
@@ -176,18 +209,64 @@ def queue():
     return '200 OK'
 
 
+@app.route('/playlist', methods=['POST'])
+@login_required
+def route_playlist():
+    data = request.json
+    action = request.args.get("action")
+    app.logger.debug("Playlist - '%s' = '%s' with '%s'", current_user.username, action, data)
+    if ((list_id := data.get("playlist")) and db.session.query(
+            Playlists.query.filter_by(id=data["playlist"], user=current_user.username).exists()).scalar()) \
+            or action == "new":
+        if action == "get":
+            return Response(json.dumps(PlaylistSongs.query.get(list_id).all()), mimetype="application/json")
+        elif action == "delete":
+            Playlists.query.filter_by(id=list_id, user=current_user.username).delete()
+            db.session.commit()
+            return '200'
+        elif item := data.get("item"):
+            if action == "add":
+                new = PlaylistSongs(playlist=list_id, song=item)
+                db.session.add(new)
+                db.session.commit()
+                return Response(str(new.id), mimetype="application/json")
+            elif action == "remove":
+                PlaylistSongs.query.get(item).filter_by(playlist=list_id).delete()
+                db.session.commit()
+                return '200'
+            elif action == "swap":
+                old = PlaylistSongs.query.filter_by(id=item[0], playlist=list_id).scalar()
+                new = PlaylistSongs.query.filter_by(id=item[1], playlist=list_id).scalar()
+                old.song, new.song = new.song, old.song
+                db.session.commit()
+                return '200'
+            elif action == "new":
+                new = Playlists(user=current_user.username, name=item)
+                db.session.add(new)
+                db.session.commit()
+                return Response(str(new.id), mimetype="application/json")
+            elif action == "rename":
+                playlist = Playlists.query.filter_by(id=list_id, user=current_user.username).scalar()
+                playlist.name = item
+                db.session.commit()
+                return '200'
+    else:
+        return abort(403)
+
+    return abort(400)
+
+
 @app.route('/search')
 @login_required
-def search():
+def route_search():
     s_query = request.args.get("q")
     app.logger.debug("Search - '%s' = '%s'", current_user.username, s_query)
     songs = {k: json.loads(v) for k, v in db.session.query(Music.id, Music.json).filter(
         or_(Music.title.ilike(f"%{s_query}%"), Music.artist.ilike(f"%{s_query}%"))).all()} if s_query else {}
 
-    user_queue = {k: json.loads(v) for k, v in db.session.query(Music.id, Music.json)
-        .filter(Music.id == Queue.song).filter(Queue.user == current_user.username).order_by(Queue.index).all()}
+    user_queue = get_user_queue()
 
-    return render_template("search.html", title="Home", theme=request.args.get("theme") or current_user.theme,
+    return render_template("search.html", title="Home",
                            query=s_query, results=songs, songs=songs | user_queue, queue=list(user_queue.keys()),
                            form=UserData(firstName=current_user.firstName, lastName=current_user.lastName,
                                          theme=current_user.theme))
@@ -195,38 +274,58 @@ def search():
 
 @app.route("/logout")
 @login_required
-def logout():
+def route_logout():
     app.logger.info("%s = '%s' logged out", request.remote_addr, current_user.username)
     logout_user()
-    return redirect(url_for('login'))
+    return redirect(url_for('route_login'))
 
 
 @app.route('/')
 @login_required
-def home():
+def route_home():
     top = {k: json.loads(v) for k, v in db.session.query(Music.id, Music.json)
-        .filter(Music.id == History.song).filter(History.user == current_user.username)
+        .join(History, Music.id == History.song and History.user == current_user.username)
         .group_by(History.song).order_by(desc(func.count(History.song))).limit(10).all()}
 
-    last = {k: json.loads(v) for k, v in db.session.query(Music.id, Music.json).distinct(Music.id)
-        .filter(Music.id == History.song).filter(History.user == current_user.username)
+    last = {k: json.loads(v) for k, v in db.session.query(Music.id, Music.json).distinct(History.song)
+        .join(History, Music.id == History.song and History.user == current_user.username)
         .order_by(desc(History.date)).limit(10).all()}
 
-    user_queue = {k: json.loads(v) for k, v in db.session.query(Music.id, Music.json)
-        .filter(Music.id == Queue.song).filter(Queue.user == current_user.username).order_by(Queue.index).all()}
+    user_queue = get_user_queue()
 
-    return render_template("home.html", title="Home", theme=request.args.get("theme") or current_user.theme,
+    playlists = db.session.query(Playlists.id, Playlists.name, func.count(PlaylistSongs.song), func.sum(Music.duration)) \
+        .join(PlaylistSongs, Playlists.id == PlaylistSongs.playlist, isouter=True) \
+        .join(Music, PlaylistSongs.song == Music.id, isouter=True).group_by(Playlists.id).all()
+
+    return render_template("home.html", title="Home",
                            top_songs=top, last_songs=last, songs=top | last | user_queue,
-                           queue=list(user_queue.keys()),
+                           queue=list(user_queue.keys()), playlists=playlists,
                            form=UserData(firstName=current_user.firstName, lastName=current_user.lastName,
                                          theme=current_user.theme))
 
 
+@app.route('/playlists/<int:playlist_id>')
+@login_required
+def route_playlists(playlist_id):
+    user_queue = get_user_queue()
+
+    if playlist := Playlists.query.filter_by(id=playlist_id, user=current_user.username).scalar():
+        playlist_songs = {k: json.loads(v) for k, v in db.session.query(Music.id, Music.json)
+            .join(PlaylistSongs, Music.id == PlaylistSongs.song).filter(PlaylistSongs.playlist == playlist_id)
+            .order_by(PlaylistSongs.id).all()}
+
+        return render_template("playlist.html", title=playlist.name, playlist=playlist,
+                               playlist_songs=playlist_songs, songs=playlist_songs | user_queue,
+                               queue=list(user_queue.keys()),
+                               form=UserData(firstName=current_user.firstName, lastName=current_user.lastName,
+                                             theme=current_user.theme))
+    return abort(403)
+
+
 @app.route('/albums')
 @login_required
-def albums():
-    user_queue = {k: json.loads(v) for k, v in db.session.query(Queue.song, Music.json)
-        .filter(Music.id == Queue.song).filter(Queue.user == current_user.username).order_by(Queue.index).all()}
+def route_albums():
+    user_queue = get_user_queue()
 
     return render_template("albums.html", title="Albums", theme=request.args.get("theme") or current_user.theme,
                            albums={k: json.loads(v) for k, v in
@@ -238,9 +337,8 @@ def albums():
 
 @app.route('/albums/<int:song_id>')
 @login_required
-def album(song_id):
-    user_queue = {k: json.loads(v) for k, v in db.session.query(Queue.song, Music.json)
-        .filter(Music.id == Queue.song).filter(Queue.user == current_user.username).order_by(Queue.index).all()}
+def route_album(song_id):
+    user_queue = get_user_queue()
 
     album_songs = {k: json.loads(v) for k, v in db.session.query(Music.id, Music.json)
         .filter(
@@ -248,7 +346,6 @@ def album(song_id):
         .order_by(Music.disc, func.length(Music.track), Music.track)}
 
     return render_template("album.html", title=list(album_songs.values())[0]['album'],
-                           theme=request.args.get("theme") or current_user.theme,
                            album_songs=album_songs, songs=album_songs | user_queue, queue=list(user_queue.keys()),
                            form=UserData(firstName=current_user.firstName, lastName=current_user.lastName,
                                          theme=current_user.theme))
@@ -256,9 +353,8 @@ def album(song_id):
 
 @app.route('/artists')
 @login_required
-def artists():
-    user_queue = {k: json.loads(v) for k, v in db.session.query(Queue.song, Music.json)
-        .filter(Music.id == Queue.song).filter(Queue.user == current_user.username).order_by(Queue.index).all()}
+def route_artists():
+    user_queue = get_user_queue()
 
     return render_template("artists.html", title="Artists", theme=request.args.get("theme") or current_user.theme,
                            artists={k: json.loads(v) for k, v in
@@ -271,9 +367,8 @@ def artists():
 
 @app.route('/artists/<int:song_id>')
 @login_required
-def artist(song_id):
-    user_queue = {k: json.loads(v) for k, v in db.session.query(Queue.song, Music.json)
-        .filter(Music.id == Queue.song).filter(Queue.user == current_user.username).order_by(Queue.index).all()}
+def route_artist(song_id):
+    user_queue = get_user_queue()
 
     query = db.session.query(Music.id, Music.json) \
         .filter(Music.artist == (db.session.query(Music.artist).filter_by(id=song_id).scalar_subquery()))
@@ -282,7 +377,7 @@ def artist(song_id):
                     query.order_by(Music.album, Music.disc, func.length(Music.track),
                                    Music.track)}
 
-    return render_template("artist.html", title=list(artist_songs.values())[0]['artist'], theme=request.args.get("theme") or current_user.theme,
+    return render_template("artist.html", title=list(artist_songs.values())[0]['artist'],
                            albums={k: json.loads(v) for k, v in query.group_by(Music.album).order_by(Music.album)},
                            songs=artist_songs | user_queue, artist=artist_songs, queue=list(user_queue.keys()),
                            form=UserData(firstName=current_user.firstName, lastName=current_user.lastName,
@@ -290,17 +385,19 @@ def artist(song_id):
 
 
 @app.route('/song/<int:song_id>')
+@app.route('/song/<int:song_id>/<string:action>')
 @login_required
-def song(song_id: int):
-    if request.args.get("meta"):
+def route_song(song_id: int, action=None):
+    if action == "meta":
         return Response(db.session.query(Music.json).filter_by(id=song_id).scalar(), mimetype="application/json")
-    elif request.args.get("image"):
-        if image := db.session.query(Music.image).filter_by(id=song_id).scalar():
+    elif action == "image":
+        if image := db.session.query(CoverImages.image).join(Music, Music.image == CoverImages.hash).filter_by(
+                id=song_id).scalar():
             # mime = imghdr.what(image, h=image[:32])
             mime = imghdr.what(None, h=image[:32])
             return Response(image, mimetype="image/" + (mime or "unknown"))
         return send_file("static/img/blank.svg")
-    elif request.args.get("listen"):
+    elif action == "listen":
         listen = History(user=current_user.username, song=song_id, date=datetime.now())
         db.session.add(listen)
         db.session.commit()

@@ -4,5 +4,6 @@
   "library": "M:\\Music",
   "users": ["admin", "family", "guest"],
   "watchdog": true,
+  "delete_allowed": true,
   "ignore_prefix": ["0tmp", "1tmp"]
 }

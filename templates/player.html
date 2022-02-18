@@ -35,22 +35,39 @@
     </div>
 </div>
 {% if disable is undefined %}
-    <ul id="menu" class="dropdown-menu">
+    <ul id="menu" class="dropdown-menu" onclick="this.classList.remove('show')">
         <li><a class="dropdown-item" role="button" onclick="player.start(selected)">Play</a></li>
+        <li><a class="dropdown-item" role="button" onclick="queue.unshift(selected)">Play Next</a></li>
         <li><a class="dropdown-item" role="button" onclick="queue.add_all(selected)">Play all</a></li>
-        <li><a class="dropdown-item" role="button" onclick="queue.push(selected)">Add to queue</a></li>
+        <li><a class="dropdown-item" role="button" onclick="queue.push(selected)">Add to Queue</a></li>
+        <li><a class="dropdown-item" role="button" onclick="open_playlist_menu(event)">Add to Playlist</a></li>
         <li><a class="dropdown-item" role="button" onclick="page('/albums/'+selected)">Go to Album</a></li>
         <li><a class="dropdown-item" role="button" onclick="page('/artists/'+selected)">Go to Artist</a></li>
     </ul>
 
-    <ul id="queue_menu" class="dropdown-menu">
+    <ul id="queue_menu" class="dropdown-menu" onclick="this.classList.remove('show')">
         <li><a class="dropdown-item" role="button" onclick="player.start(queue.array[selected])">Play now</a></li>
-        <li><a class="dropdown-item" role="button" onclick="queue.splice(selected, 1);update_modal()">Remove from
-            queue</a></li>
+        <li><a class="dropdown-item" role="button" onclick="queue.unshift(queue.array[selected])">Play Next</a></li>
+        <li><a class="dropdown-item" role="button" onclick="queue.splice(selected, 1)">Remove from
+            Queue</a></li>
         <li><a class="dropdown-item" role="button" onclick="queue.move(-1, selected)">Move Up</a></li>
         <li><a class="dropdown-item" role="button" onclick="queue.move(1, selected)">Move Down</a></li>
         <li><a class="dropdown-item" role="button" onclick="page('/albums/'+queue.array[selected])">Go to Album</a></li>
-        <li><a class="dropdown-item" role="button" onclick="page('/artists/'+queue.array[selected])">Go to Artist</a></li>
+        <li><a class="dropdown-item" role="button" onclick="page('/artists/'+queue.array[selected])">Go to Artist</a>
+        </li>
+    </ul>
+
+    <ul id="playlist_menu" class="dropdown-menu" onclick="this.classList.remove('show')">
+        <li><a class="dropdown-item" role="button" onclick="playlists.new()">Create New</a></li>
+        {% if playlists and playlists[0][0] is not none %}
+            <li>
+                <hr class="dropdown-divider">
+            </li>
+            {% for playlist in playlists %}
+                <li><a class="dropdown-item" role="button"
+                       onclick="playlists.add({{ playlist[0] }}, selected)">{{ playlist[1] or "Playlist" }}</a></li>
+            {% endfor %}
+        {% endif %}
     </ul>
 
     <div id="toast" class="toast fixed-bottom start-50 translate-middle-x" role="alert" aria-live="assertive"
@@ -63,7 +80,7 @@
 
 
     <div class="modal fade" id="queueModal" tabindex="-1" aria-labelledby="queueModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-dialog modal-xl modal-fullscreen-lg-down modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="queueModalLabel">Your Queue</h5>

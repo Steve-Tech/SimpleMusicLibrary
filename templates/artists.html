@@ -4,7 +4,7 @@
         {% for id, song in artists.items() %}
             <div class="card bg-secondary col-2 m-1 p-0 hover bg-img" role="button"
                  data-page="/artists/{{ id }}" data-id="{{ id }}" data-name="{{ song.artist }}">
-                <img class="card-img my-auto" src="/song/{{ id }}?image=true" alt="Card image" loading="lazy">
+                <img class="card-img my-auto" src="/song/{{ id }}/image" alt="Card image" loading="lazy">
                 <div class="card-img-overlay text-center p-0 d-flex align-content-between flex-column">
                     <span class="text-light fw-bold position-absolute top-0 bg-dark bg-opacity-50 w-100">{{ song.artist }}</span>
 {#                    <span class="text-light small position-absolute bottom-0 bg-dark bg-opacity-50 w-100"></span>#}

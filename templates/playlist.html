@@ -1,12 +1,12 @@
 {% extends 'layout.html' %}
 {% block content %}
-    {% set album = (album_songs.items()|list)[0] %}
-    <div id="album" class="row">
-        <img class="col-3 bg-img" src="/song/{{ album[0] }}/image">
-        <div class="col-9 d-flex flex-column justify-content-center">
-            <h1>{{ album[1].album }}</h1>
-            <h2>{{ album[1].albumartist }}</h2>
-        </div>
+    <div id="playlist" class="row">
+        <input placeholder="Playlist Name" title="Edit Playlist Name" class="h1 border-0 bg-transparent text-white"
+                  value="{{ playlist.name }}" onchange="playlists.rename({{ playlist.id }}, this.value)">
+    </div>
+    <div class="">
+        <button class="btn btn-primary" onclick="queue.add_all({{ (playlist_songs.keys() | list)[0] }})">Play All</button>
+        <button class="btn btn-secondary" onclick="playlists.delete({{ playlist.id }});page('/')">Delete</button>
     </div>
     <table class="table">
         <thead>
@@ -21,7 +21,7 @@
         </thead>
         <tbody>
 
-        {% for id, song in album_songs.items() %}
+        {% for id, song in playlist_songs.items() %}
             <tr role="button" data-id="{{ id }}" onclick="queue.add_all({{ id }})" oncontextmenu="open_menu(event, {{ id }})"
                 title="{{ ((song.filesize/1048576)|round(1)|string + "MB") if song.filesize }}, {{ ((song.samplerate/1000)|string + "KHz") if song.samplerate }}, {{ (song.bitrate|round(1)|string + "kbps") if song.bitrate }}">
                 <th scope="row" class="w-play">{{ song.track or '' }}</th>

@@ -22,6 +22,7 @@ A Simple Bootstrap Music Library
     - Default password is username with capital first letter + exclamation mark
       - eg. `admin` -> `Admin!`
   - `watchdog`: Watch and scan new files in library
+  - `delete_allowed`: Is watchdog allowed to remove deleted files from database
   - `ignore_prefix`: Ignore new files starting with anything in array
 ```json
 {
@@ -30,6 +31,7 @@ A Simple Bootstrap Music Library
   "library": "M:\\Music",
   "users": ["admin", "family", "guest"],
   "watchdog": true,
+  "delete_allowed": true,
   "ignore_prefix": ["0tmp", "1tmp"]
 }
 ```
@@ -37,8 +39,9 @@ A Simple Bootstrap Music Library
 ### Setup
 - `pip install -r requirements.txt`
 - `python3 setup.py`
-  - `Download Bootswatch Themes? [y/N]: ` - Download themes from bootswatch? 
-  - `Drop All Tables? [y/N]: ` - Reset all data, only needed for reinstall 
+  - `Download Bootswatch Themes? [y/N]: ` - Download themes from bootswatch
+  - `Drop All Tables? [y/N]: ` - Reset all data, only needed for reinstall
   - `Drop All Music Tables? [y/N]: ` - Reset all data except userdata, only needed for reinstall
-  - The script will then create users and search the library for songs
+  - `Create Users? [y/N]: ` - Create users from settings, does no harm if users exist
+  - `Search Library for Songs? [y/N]: ` - Delete deleted songs and add new songs to the database
 - Run `app.py` with your WSGI server

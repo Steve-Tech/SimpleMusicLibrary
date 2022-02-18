@@ -17,10 +17,10 @@ function format_time(time) {
     if (time > 3600) {
         let mins = Math.floor((time % 3600) / 60);
         let hours = Math.floor(time / 3600);
-        return hours + ':' + (mins < 10 ? '0' + mins : mins) + ':' + (secs < 10 ? '0' + secs : secs);
+        return `${hours}:${mins < 10 ? '0' + mins : mins}`
     } else {
         let mins = Math.floor(time / 60);
-        return mins + ':' + (secs < 10 ? '0' + secs : secs);
+        return `${mins}:${secs < 10 ? '0' + secs : secs}`
     }
 }
 
@@ -31,7 +31,7 @@ function page(url, push = true) {
     xhr.open("GET", url, true);
     xhr.responseType = 'document';
     xhr.onload = () => {
-        if (xhr.status !== 200) show_toast("An Error Occurred: " + xhr.status + ' ' + xhr.statusText)
+        if (xhr.status !== 200) show_toast(`An Error Occurred: ${xhr.status} ${xhr.statusText}`)
         const new_doc = xhr.responseXML;
         document.title = new_doc.title;
         document.getElementById("navbar").innerHTML = new_doc.getElementById("navbar").innerHTML;

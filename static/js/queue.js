@@ -62,7 +62,7 @@ class Queue {
         this.update()
         let amount = this.queue.length - before;
         if (amount > 0)
-            show_toast("Added " + (this.queue.length - before) + " items to queue.")
+            show_toast(`Added ${this.queue.length - before} items to queue.`)
         if (this.current == null) player.start(song_id)
     }
 
