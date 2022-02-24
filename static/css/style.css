@@ -42,6 +42,9 @@
 #menu, #queue_menu {
     z-index: 1080;
 }
+#loading {
+    transition: opacity 0.1s;
+}
 [data-page] {
     cursor: pointer;
 }

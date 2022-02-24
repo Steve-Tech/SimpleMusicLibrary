@@ -4,11 +4,12 @@ from hashlib import blake2b
 from os.path import dirname, join, split, exists
 from os import walk, makedirs
 from sys import argv
-from tqdm import tqdm
 
 import requests
 from sqlalchemy import inspect
 from tinytag import TinyTag, TinyTagException
+from tqdm import tqdm
+from mmh3 import hash128
 
 from database import *
 
@@ -96,7 +97,7 @@ def scan():
                     new_meta['track'] = meta.track or i + 1
                     img_hash = None
                     if image := meta.get_image():
-                        img_hash = hash(image)
+                        img_hash = hash128(image)
                         if not db.session.query(CoverImages.query.filter_by(hash=img_hash).exists()).scalar():
                             db.session.add(CoverImages(hash=img_hash, image=image))
                     db.session.add(

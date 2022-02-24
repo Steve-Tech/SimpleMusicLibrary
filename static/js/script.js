@@ -27,11 +27,13 @@ function format_time(time) {
 function page(url, push = true) {
     if (push) window.history.pushState({"page": url}, "Loading - SimpleMusicLibrary", url);
     document.title = "Loading - SimpleMusicLibrary";
+    elem_id("loading").classList.remove("opacity-0")
     let xhr = new XMLHttpRequest();
     xhr.open("GET", url, true);
     xhr.responseType = 'document';
     xhr.onload = () => {
         if (xhr.status !== 200) show_toast(`An Error Occurred: ${xhr.status} ${xhr.statusText}`)
+        elem_id("loading").classList.add("opacity-0")
         const new_doc = xhr.responseXML;
         document.title = new_doc.title;
         document.getElementById("navbar").innerHTML = new_doc.getElementById("navbar").innerHTML;
@@ -50,6 +52,7 @@ function setupPage() {
         element.addEventListener("click", data_page);
     })
     updateTables(document.body)
+    load_search()
 }
 
 function updateTables(base_element = document.body) {
@@ -62,6 +65,12 @@ function updateTables(base_element = document.body) {
             element.children[0].innerText = text;
         })
     })
+}
+
+function close_menu(element, event) {
+    if (!event.target.classList.contains("dropdown-item")) {
+        element.classList.remove("show")
+    }
 }
 
 window.history.replaceState({"page": window.location.pathname}, document.title)

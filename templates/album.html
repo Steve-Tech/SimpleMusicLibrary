@@ -6,6 +6,27 @@
         <div class="col-9 d-flex flex-column justify-content-center">
             <h1>{{ album[1].album }}</h1>
             <h2>{{ album[1].albumartist }}</h2>
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="playlist_dropdown_link"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                    Add All to Playlist
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="playlist_dropdown_link">
+                    <div class="playlists">
+                        {% for playlist in playlists %}
+                            <li><a class="dropdown-item" role="button" data-id="{{ playlist[0] }}"
+                                   onclick="playlists.add({{ playlist[0] }}, selected)">{{ playlist[1] or "Playlist" }}</a>
+                            </li>
+                        {% endfor %}
+                    </div>
+                    {% if playlists and playlists[0][0] is not none %}
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                    {% endif %}
+                    <li><a class="dropdown-item" role="button" onclick="playlists.new()">Create New</a></li>
+                </ul>
+            </div>
         </div>
     </div>
     <table class="table">
@@ -22,7 +43,8 @@
         <tbody>
 
         {% for id, song in album_songs.items() %}
-            <tr role="button" data-id="{{ id }}" onclick="queue.add_all({{ id }})" oncontextmenu="open_menu(event, {{ id }})"
+            <tr role="button" data-id="{{ id }}" onclick="queue.add_all({{ id }})"
+                oncontextmenu="open_menu(event, {{ id }})"
                 title="{{ ((song.filesize/1048576)|round(1)|string + "MB") if song.filesize }}, {{ ((song.samplerate/1000)|string + "KHz") if song.samplerate }}, {{ (song.bitrate|round(1)|string + "kbps") if song.bitrate }}">
                 <th scope="row" class="w-play">{{ song.track or '' }}</th>
                 <td>{{ song.title }}</td>

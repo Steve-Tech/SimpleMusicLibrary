@@ -28,12 +28,12 @@ class Music(db.Model):
     year = db.Column(db.Integer)
     duration = db.Column(db.Float)
     json = db.Column(db.String)
-    image = db.Column(db.Integer)
+    image = db.Column(db.Integer, db.ForeignKey("cover_images.hash"))
 
 
 class CoverImages(db.Model):
     hash = db.Column(db.Integer, primary_key=True)
-    image = db.Column(db.LargeBinary, db.ForeignKey("music.id", onupdate="CASCADE", ondelete="CASCADE"))
+    image = db.Column(db.LargeBinary)
 
 
 class History(db.Model):

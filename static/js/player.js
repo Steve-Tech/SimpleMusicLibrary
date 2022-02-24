@@ -1,16 +1,7 @@
 "use strict";
 let songs = JSON.parse(document.getElementById('songs').innerText);
 let queue = new Queue(JSON.parse(document.getElementById('user_queue').innerText));
-let playlists = new Playlists({
-    "new": (response) => {
-        console.log(response)
-        let item = document.createElement("a")
-        item.classList.add("dropdown-item")
-        item.setAttribute("role", "button")
-        item.onclick = () => {playlists.add(response, selected)};
-        item.innerText = "New Playlist"
-        playlist_menu.appendChild(document.createElement("li").appendChild(item))
-    }});
+let playlists = new Playlists();
 
 let selected;
 
@@ -32,7 +23,7 @@ class Player {
                 this.audio.volume = this.volume;
             if ("mediaSession" in navigator) {
                 navigator.mediaSession.playbackState = "playing";
-                if ((this.audio.duration || this.audio.duration === 0) && this.audio.playbackRate && this.audio.currentTime) {
+                if (this.audio.duration != null && this.audio.playbackRate != null && this.audio.currentTime != null) {
                     navigator.mediaSession.setPositionState({
                         duration: this.audio.duration,
                         playbackRate: this.audio.playbackRate,
@@ -41,18 +32,20 @@ class Player {
                 }
             }
 
+            let last_time = Math.floor(this.audio.currentTime)
+
             this.interval = setInterval(() => {
                 slider.value = this.audio.currentTime;
-                let time = format_time(this.audio.currentTime);
-                if (current_time.innerText !== time)
-                    current_time.innerText = time;
-                if ((this.audio.duration || this.audio.duration === 0) && this.audio.playbackRate && this.audio.currentTime) {
+                if (this.audio.duration != null && this.audio.playbackRate != null && this.audio.currentTime != null) {
                     navigator.mediaSession.setPositionState({
                         duration: this.audio.duration,
                         playbackRate: this.audio.playbackRate,
                         position: this.audio.currentTime
                     });
                 }
+                if (last_time !== Math.floor(this.audio.currentTime))
+                    last_time = Math.floor(this.audio.currentTime)
+                    current_time.innerText = format_time(this.audio.currentTime);
 
             }, 10);
 
@@ -161,6 +154,10 @@ class Player {
         }).catch((error) => {
             console.error(error)
             show_toast(`An Error Occurred: ${error.message}`);
+            button.innerText = '▶';
+            if ("mediaSession" in navigator)
+                navigator.mediaSession.playbackState = "none";
+            clearInterval(this.interval);
         });
 
         if (!fast) {
@@ -242,6 +239,7 @@ class Player {
             song_image.src = `/song/${id}/image`;
             song_title.innerText = song.title;
             song_artist.innerText = song.artist;
+            song_info.title = `${(song.filesize/1048576).toFixed(1)}MB, ${song.samplerate/1000}KHz, ${song.bitrate.toFixed(1)}kbps`
             song_info.classList.remove("invisible");
             if (time) {
                 slider.max = song.duration;
@@ -257,7 +255,6 @@ let player = new Player();
 
 let menu = elem_id("menu");
 let queue_menu = elem_id("queue_menu");
-let playlist_menu = elem_id("playlist_menu");
 
 let button = elem_id("play");
 let loop_button = elem_id("loop");
@@ -302,6 +299,12 @@ slider.addEventListener("input", (e) => {
 
 volume.addEventListener("change", (e) => {
     player.set_volume = e.target.value;
+    e.target.title = (e.target.value * 100) + '%'
+    localStorage.setItem('volume', e.target.value);
+})
+volume.addEventListener("input", (e) => {
+    player.set_volume = e.target.value;
+    e.target.title = (e.target.value * 100) + '%'
 })
 mute.addEventListener("click", (e) => {
     player.muted = !player.muted;
@@ -346,10 +349,9 @@ queue_modal.addEventListener('show.bs.modal', update_modal)
 
 document.body.addEventListener('click', (e) => {
     console.log(e)
-    if (!(menu.contains(e.target) || queue_menu.contains(e.target) || playlist_menu.contains(e.target))) {
+    if (!((menu.contains(e.target) && !document.querySelector("#menu .dropdown-menu").contains(e.target)) || queue_menu.contains(e.target))) {
         menu.classList.remove("show")
         queue_menu.classList.remove("show")
-        playlist_menu.classList.remove("show")
     }
 })
 
@@ -394,12 +396,12 @@ function open_menu(e, id, e_menu = menu) {
     e_menu.classList.add("show")
 }
 
-
-function open_playlist_menu() {
-    playlist_menu.style.top = menu.style.top;
-    playlist_menu.style.left = menu.style.left;
-    playlist_menu.classList.add("show")
+function load() {
+    let new_volume = localStorage.getItem('volume') || 1;
+    player.set_volume = new_volume;
+    volume.value = new_volume;
+    volume.title = (new_volume * 100) + '%'
+    player.display(queue.next);
 }
 
-
-player.display(queue.next);
+load()

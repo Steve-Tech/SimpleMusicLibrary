@@ -8,3 +8,4 @@ tinytag~=1.7.0
 requests~=2.27.1
 watchdog~=2.1.6
 tqdm~=4.62.3
+mmh3~=3.0.0

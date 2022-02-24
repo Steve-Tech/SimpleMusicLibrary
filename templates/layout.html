@@ -1,6 +1,11 @@
 {% extends 'html.html' %}
 {% block layout %}
     {% include 'navbar.html' %}
+    <div class="sticky-top float-start opacity-0" id="loading">
+        <div class="spinner-border m-1" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
     <main class="container mt-sm-3 mt-lg-4 mb-container" id="container">
         {% for category, message in get_flashed_messages(with_categories=true) %}
             <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
@@ -95,11 +100,11 @@
         <script id="user_queue" type="application/json">{{ queue|tojson|safe }}</script>
     {% endif %}
 
-    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/search.js') }}"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     <script src="{{ url_for('static', filename='js/playlist.js') }}"></script>
     <script src="{{ url_for('static', filename='js/queue.js') }}"></script>
     <script src="{{ url_for('static', filename='js/player.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/search.js') }}"></script>
 
 {% endblock %}

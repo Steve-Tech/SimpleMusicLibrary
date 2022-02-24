@@ -9,7 +9,9 @@
                 <img class="card-img my-auto" src="/song/{{ id }}/image" alt="Card image" loading="lazy">
                 <div class="card-img-overlay text-center p-0 d-flex align-content-between flex-column">
                     <span class="text-light fw-bold position-absolute top-0 bg-dark bg-opacity-50 w-100">{{ song.album }}</span>
-                    <span class="text-light small position-absolute bottom-0 bg-dark bg-opacity-50 w-100">{{ song.year }}</span>
+                    {% if song.year %}
+                        <span class="text-light small position-absolute bottom-0 bg-dark bg-opacity-50 w-100">{{ song.year }}</span>
+                    {% endif %}
                     <span class="display-2 show-hover position-absolute top-50 start-50 translate-middle">&#x25B6;</span>
                 </div>
             </div>
@@ -30,7 +32,8 @@
         <tbody>
 
         {% for id, song in artist.items() %}
-            <tr role="button" data-id="{{ id }}" onclick="queue.add_all({{ id }})" oncontextmenu="open_menu(event, {{ id }})"
+            <tr role="button" data-id="{{ id }}" onclick="queue.add_all({{ id }})"
+                oncontextmenu="open_menu(event, {{ id }})"
                 title="{{ ((song.filesize/1048576)|round(1)|string + "MB") if song.filesize }}, {{ ((song.samplerate/1000)|string + "KHz") if song.samplerate }}, {{ (song.bitrate|round(1)|string + "kbps") if song.bitrate }}">
                 <th scope="row" class="w-play">{{ song.track  or '' }}</th>
                 <td>{{ song.title }}</td>

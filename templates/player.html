@@ -10,7 +10,7 @@
         <div class="row col-12 col-lg-6">
             <div class="col-4">
                 <div class="d-none d-sm-flex align-items-center invisible" id="info">
-                    <img id="image" class="bg-img" src="" alt="">
+                    <img id="image" class="bg-img" src="" alt="Album Cover">
                     <div class="d-flex flex-column ms-1">
                         <span id="title"></span>
                         <span id="artist" class="small text-muted"></span>
@@ -29,18 +29,41 @@
                     ℹ️
                 </span>
                 <label id="mute" for="volume" aria-label="Volume" class="me-2 h5 hover">🔊</label>
-                <input id="volume" type="range" class="form-range" min="0" max="1" value="1" step="0.01">
+                <input id="volume" type="range" class="form-range" min="0" max="1" value="1" step="0.01" title="100%">
             </div>
         </div>
     </div>
 </div>
 {% if disable is undefined %}
-    <ul id="menu" class="dropdown-menu" onclick="this.classList.remove('show')">
+    <ul id="menu" class="dropdown-menu" onclick="close_menu(this, event)">
         <li><a class="dropdown-item" role="button" onclick="player.start(selected)">Play</a></li>
         <li><a class="dropdown-item" role="button" onclick="queue.unshift(selected)">Play Next</a></li>
         <li><a class="dropdown-item" role="button" onclick="queue.add_all(selected)">Play all</a></li>
         <li><a class="dropdown-item" role="button" onclick="queue.push(selected)">Add to Queue</a></li>
-        <li><a class="dropdown-item" role="button" onclick="open_playlist_menu(event)">Add to Playlist</a></li>
+        <li>
+            <div class="dropend">
+                <a class="dropdown-item dropdown-toggle" href="#" role="button" id="playlist_menu_link"
+                   data-bs-toggle="dropdown" aria-expanded="false">
+                    Add to Playlist
+                </a>
+
+                <ul class="dropdown-menu" aria-labelledby="playlist_menu_link">
+                    <div class="playlists">
+                        {% for playlist in playlists %}
+                            <li><a class="dropdown-item" role="button" data-id="{{ playlist[0] }}"
+                                   onclick="playlists.add({{ playlist[0] }}, selected)">{{ playlist[1] or "Playlist" }}</a>
+                            </li>
+                        {% endfor %}
+                    </div>
+                    {% if playlists and playlists[0][0] is not none %}
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                    {% endif %}
+                    <li><a class="dropdown-item" role="button" onclick="playlists.new()">Create New</a></li>
+                </ul>
+            </div>
+        </li>
         <li><a class="dropdown-item" role="button" onclick="page('/albums/'+selected)">Go to Album</a></li>
         <li><a class="dropdown-item" role="button" onclick="page('/artists/'+selected)">Go to Artist</a></li>
     </ul>
@@ -55,19 +78,6 @@
         <li><a class="dropdown-item" role="button" onclick="page('/albums/'+queue.array[selected])">Go to Album</a></li>
         <li><a class="dropdown-item" role="button" onclick="page('/artists/'+queue.array[selected])">Go to Artist</a>
         </li>
-    </ul>
-
-    <ul id="playlist_menu" class="dropdown-menu" onclick="this.classList.remove('show')">
-        <li><a class="dropdown-item" role="button" onclick="playlists.new()">Create New</a></li>
-        {% if playlists and playlists[0][0] is not none %}
-            <li>
-                <hr class="dropdown-divider">
-            </li>
-            {% for playlist in playlists %}
-                <li><a class="dropdown-item" role="button"
-                       onclick="playlists.add({{ playlist[0] }}, selected)">{{ playlist[1] or "Playlist" }}</a></li>
-            {% endfor %}
-        {% endif %}
     </ul>
 
     <div id="toast" class="toast fixed-bottom start-50 translate-middle-x" role="alert" aria-live="assertive"

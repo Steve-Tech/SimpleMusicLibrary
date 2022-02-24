@@ -29,8 +29,10 @@ function live_search() {
 
 }
 
-
-document.getElementById("search_form").addEventListener("submit", (e) => {
-    page("/search?q=" + encodeURIComponent(e.target[0].value));
-    e.preventDefault();
-})
+function load_search() {
+    document.getElementById('search').addEventListener("input", () => live_search())
+    document.getElementById('search_form').addEventListener("submit", (e) => {
+        e.preventDefault();
+        page("/search?q=" + encodeURIComponent(e.target[0].value));
+    })
+}

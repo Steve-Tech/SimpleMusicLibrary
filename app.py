@@ -9,6 +9,7 @@ from flask import Flask, render_template, request, Response, send_file, flash, r
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from sqlalchemy import func, desc, or_
 from tinytag import TinyTag, TinyTagException
+from mmh3 import hash128
 
 from database import *
 from forms import *
@@ -58,7 +59,7 @@ if settings['watchdog']:
                                 new_meta['track'] = meta.track
                                 img_hash = None
                                 if image := meta.get_image():
-                                    img_hash = hash(image)
+                                    img_hash = hash128(image)
                                     if not db.session.query(
                                             CoverImages.query.filter_by(hash=img_hash).exists()).scalar():
                                         db.session.add(CoverImages(hash=img_hash, image=image))
@@ -266,7 +267,7 @@ def route_search():
 
     user_queue = get_user_queue()
 
-    return render_template("search.html", title="Home",
+    return render_template("search.html", title="Search",
                            query=s_query, results=songs, songs=songs | user_queue, queue=list(user_queue.keys()),
                            form=UserData(firstName=current_user.firstName, lastName=current_user.lastName,
                                          theme=current_user.theme))
