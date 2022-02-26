@@ -23,7 +23,7 @@ class Player {
                 this.audio.volume = this.volume;
             if ("mediaSession" in navigator) {
                 navigator.mediaSession.playbackState = "playing";
-                if (this.audio.duration != null && this.audio.playbackRate != null && this.audio.currentTime != null) {
+                if ((this.audio.duration || this.audio.duration === 0) && this.audio.playbackRate && this.audio.currentTime) {
                     navigator.mediaSession.setPositionState({
                         duration: this.audio.duration,
                         playbackRate: this.audio.playbackRate,
@@ -36,7 +36,7 @@ class Player {
 
             this.interval = setInterval(() => {
                 slider.value = this.audio.currentTime;
-                if (this.audio.duration != null && this.audio.playbackRate != null && this.audio.currentTime != null) {
+                if ((this.audio.duration || this.audio.duration === 0) && this.audio.playbackRate && this.audio.currentTime) {
                     navigator.mediaSession.setPositionState({
                         duration: this.audio.duration,
                         playbackRate: this.audio.playbackRate,
@@ -45,7 +45,7 @@ class Player {
                 }
                 if (last_time !== Math.floor(this.audio.currentTime))
                     last_time = Math.floor(this.audio.currentTime)
-                    current_time.innerText = format_time(this.audio.currentTime);
+                current_time.innerText = format_time(this.audio.currentTime);
 
             }, 10);
 
@@ -239,7 +239,7 @@ class Player {
             song_image.src = `/song/${id}/image`;
             song_title.innerText = song.title;
             song_artist.innerText = song.artist;
-            song_info.title = `${(song.filesize/1048576).toFixed(1)}MB, ${song.samplerate/1000}KHz, ${song.bitrate.toFixed(1)}kbps`
+            song_info.title = `${(song.filesize / 1048576).toFixed(1)}MB, ${song.samplerate / 1000}KHz, ${song.bitrate.toFixed(1)}kbps`
             song_info.classList.remove("invisible");
             if (time) {
                 slider.max = song.duration;
@@ -346,18 +346,12 @@ back_button.addEventListener("click", () => player.play());
 
 queue_modal.addEventListener('show.bs.modal', update_modal)
 
-
-document.body.addEventListener('click', (e) => {
-    console.log(e)
-    if (!((menu.contains(e.target) && !document.querySelector("#menu .dropdown-menu").contains(e.target)) || queue_menu.contains(e.target))) {
-        menu.classList.remove("show")
-        queue_menu.classList.remove("show")
-    }
-})
-
 window.addEventListener('popstate', (e) => {
     if ("page" in e.state) page(e.state.page, false)
 });
+
+
+let drag = new Drag();
 
 function update_modal() {
     let modal_content = queue_modal.getElementsByClassName("modal-body")[0];
@@ -377,23 +371,18 @@ function update_modal() {
         let td = document.createElement("td");
         td.innerText = format_time(song['duration']);
         tr.appendChild(td);
+        tr.setAttribute("draggable", "true")
         tr.addEventListener('click', () => player.play(song_id))
-        tr.addEventListener('contextmenu', (e) => open_menu(e, index, queue_menu))
+        tr.addEventListener('contextmenu', (e) => menus.open(e, "queue", index))
+        tr.addEventListener('dragstart', (e) => drag.start(e))
+        tr.addEventListener('dragover', (e) => drag.over(e))
+        tr.addEventListener('dragend', (e) => drag.update_queue(e))
         tr.setAttribute('role', 'button')
         table.appendChild(tr);
     }
 
     queue_modal.querySelector("div.modal-footer > span").innerText = `${queue.length} Items`
     updateTables(table);
-}
-
-
-function open_menu(e, id, e_menu = menu) {
-    e.preventDefault()
-    selected = id;
-    e_menu.style.top = e.pageY + "px";
-    e_menu.style.left = e.pageX + "px";
-    e_menu.classList.add("show")
 }
 
 function load() {

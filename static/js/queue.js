@@ -66,7 +66,24 @@ class Queue {
         if (this.current == null) player.start(song_id)
     }
 
-    add = this.push
+    add(song_id) {
+        let before = this.queue.length;
+        let isArray = Array.isArray(song_id)
+        if (isArray)
+            this.queue.push(...song_id)
+        else
+            this.queue.push(song_id)
+        this.update()
+        let amount = this.queue.length - before;
+        if (amount > 0)
+            show_toast(`Added ${amount} ${amount !== 1 ? 'items' : 'item'} to queue.`)
+        if (this.current == null) {
+            if (isArray)
+                player.start(song_id[0])
+            else
+                player.start(song_id)
+        }
+    }
 
     // Knuth Shuffle
     shuffle() {
@@ -85,8 +102,8 @@ class Queue {
         this.update();
     }
 
-    move(amt, item) {
-        this.queue.splice(item + amt, 0, this.queue.splice(item, 1)[0])
+    move(item, inc) {
+        this.queue.splice(item + inc, 0, this.queue.splice(item, 1)[0])
         this.update()
     }
 

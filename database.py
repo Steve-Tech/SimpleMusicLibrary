@@ -25,7 +25,7 @@ class Music(db.Model):
     disc = db.Column(db.String)
     genre = db.Column(db.String)
     track = db.Column(db.String)
-    year = db.Column(db.Integer)
+    year = db.Column(db.String)
     duration = db.Column(db.Float)
     json = db.Column(db.String)
     image = db.Column(db.Integer, db.ForeignKey("cover_images.hash"))
@@ -56,6 +56,6 @@ class Playlists(db.Model):
 
 
 class PlaylistSongs(db.Model):
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    playlist = db.Column(db.Integer, db.ForeignKey("playlists.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False)
+    playlist = db.Column(db.Integer, db.ForeignKey("playlists.id", onupdate="CASCADE", ondelete="CASCADE"), primary_key=True)
+    index = db.Column(db.Integer, primary_key=True)
     song = db.Column(db.Integer, db.ForeignKey("music.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False)

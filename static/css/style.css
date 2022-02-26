@@ -20,14 +20,17 @@
 .hover:hover .show-hover {
     opacity: 1;
 }
-.mb-container {
-    margin-bottom: 10em;
+.pb-container {
+    padding-bottom: 10em;
 }
 .off {
     filter: grayscale(1);
 }
 .w-play {
     min-width: 2.5rem;
+}
+.playlist-only {
+    display: none;
 }
 #image {
     max-height: 3rem;

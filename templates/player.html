@@ -35,50 +35,30 @@
     </div>
 </div>
 {% if disable is undefined %}
-    <ul id="menu" class="dropdown-menu" onclick="close_menu(this, event)">
-        <li><a class="dropdown-item" role="button" onclick="player.start(selected)">Play</a></li>
-        <li><a class="dropdown-item" role="button" onclick="queue.unshift(selected)">Play Next</a></li>
-        <li><a class="dropdown-item" role="button" onclick="queue.add_all(selected)">Play all</a></li>
-        <li><a class="dropdown-item" role="button" onclick="queue.push(selected)">Add to Queue</a></li>
-        <li>
-            <div class="dropend">
-                <a class="dropdown-item dropdown-toggle" href="#" role="button" id="playlist_menu_link"
-                   data-bs-toggle="dropdown" aria-expanded="false">
-                    Add to Playlist
-                </a>
+    <div class="d-none">
+        <div class="dropend" id="playlist_dropend">
+            <a class="dropdown-item dropdown-toggle" href="#" role="button" id="playlist_menu_link"
+               data-bs-toggle="dropdown" aria-expanded="false">
+                Add to Playlist
+            </a>
 
-                <ul class="dropdown-menu" aria-labelledby="playlist_menu_link">
-                    <div class="playlists">
-                        {% for playlist in playlists %}
-                            <li><a class="dropdown-item" role="button" data-id="{{ playlist[0] }}"
-                                   onclick="playlists.add({{ playlist[0] }}, selected)">{{ playlist[1] or "Playlist" }}</a>
-                            </li>
-                        {% endfor %}
-                    </div>
-                    {% if playlists and playlists[0][0] is not none %}
-                        <li>
-                            <hr class="dropdown-divider">
+            <ul class="dropdown-menu" aria-labelledby="playlist_menu_link">
+                <div class="playlists">
+                    {% for playlist in playlists %}
+                        <li><a class="dropdown-item" role="button" data-id="{{ playlist[0] }}"
+                               onclick="playlists.add({{ playlist[0] }}, menus.selected)">{{ playlist[1] or "Playlist" }}</a>
                         </li>
-                    {% endif %}
-                    <li><a class="dropdown-item" role="button" onclick="playlists.new()">Create New</a></li>
-                </ul>
-            </div>
-        </li>
-        <li><a class="dropdown-item" role="button" onclick="page('/albums/'+selected)">Go to Album</a></li>
-        <li><a class="dropdown-item" role="button" onclick="page('/artists/'+selected)">Go to Artist</a></li>
-    </ul>
-
-    <ul id="queue_menu" class="dropdown-menu" onclick="this.classList.remove('show')">
-        <li><a class="dropdown-item" role="button" onclick="player.start(queue.array[selected])">Play now</a></li>
-        <li><a class="dropdown-item" role="button" onclick="queue.unshift(queue.array[selected])">Play Next</a></li>
-        <li><a class="dropdown-item" role="button" onclick="queue.splice(selected, 1)">Remove from
-            Queue</a></li>
-        <li><a class="dropdown-item" role="button" onclick="queue.move(-1, selected)">Move Up</a></li>
-        <li><a class="dropdown-item" role="button" onclick="queue.move(1, selected)">Move Down</a></li>
-        <li><a class="dropdown-item" role="button" onclick="page('/albums/'+queue.array[selected])">Go to Album</a></li>
-        <li><a class="dropdown-item" role="button" onclick="page('/artists/'+queue.array[selected])">Go to Artist</a>
-        </li>
-    </ul>
+                    {% endfor %}
+                </div>
+                {% if playlists and playlists[0][0] is not none %}
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                {% endif %}
+                <li><a class="dropdown-item" role="button" onclick="playlists.new()">Create New</a></li>
+            </ul>
+        </div>
+    </div>
 
     <div id="toast" class="toast fixed-bottom start-50 translate-middle-x" role="alert" aria-live="assertive"
          aria-atomic="true">

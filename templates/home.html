@@ -9,7 +9,7 @@
         <div class="row d-flex justify-content-around">
             {% for id, song in top_songs.items() %}
                 <div class="card bg-secondary col-2 m-1 p-0 hover bg-img {{ "d-none d-lg-flex" if loop.index > 8 else ("d-none d-md-flex" if loop.index > 6 else "d-flex") }}"
-                     role="button" onclick="player.start({{ id }})" oncontextmenu="open_menu(event, {{ id }})"
+                     role="button" onclick="player.start({{ id }})" oncontextmenu="menus.open(event, 'song', {{ id }})"
                      data-id="{{ id }}">
                     <img class="card-img my-auto" src="/song/{{ id }}/image" alt="Card image" loading="lazy">
                     <div class="card-img-overlay text-center p-0 d-flex align-content-between flex-column">
@@ -26,7 +26,7 @@
             {% for id, song in last_songs.items() %}
                 <div class="card bg-secondary col-2 m-1 p-0 hover bg-img {{ "d-none d-lg-flex" if loop.index > 8 else ("d-none d-md-flex" if loop.index > 6 else "d-flex") }}"
                      role="button"
-                     onclick="player.start({{ id }})" oncontextmenu="open_menu(event, {{ id }})" data-id="{{ id }}">
+                     onclick="player.start({{ id }})" oncontextmenu="menus.open(event, 'song', {{ id }})" data-id="{{ id }}">
                     <img class="card-img my-auto" src="/song/{{ id }}/image" alt="Card image" loading="lazy">
                     <div class="card-img-overlay text-center p-0 d-flex align-content-between flex-column">
                         <span class="text-light fw-bold position-absolute top-0 bg-dark bg-opacity-50 w-100">{{ song.title }}</span>
@@ -61,8 +61,7 @@
             <tbody>
 
             {% for playlist in playlists %}
-                <tr role="button" data-id="{{ playlist[0] }}" onclick="page('/playlists/{{ playlist[0] }}')"
-                    oncontextmenu="open_menu(event, {{ playlist[0] }})">
+                <tr role="button" data-id="{{ playlist[0] }}" onclick="page('/playlists/{{ playlist[0] }}')">
                     <th scope="row" class="w-play"></th>
                     <td>{{ playlist[1] or "Playlist" }}</td>
                     <td>{{ playlist[2] }}</td>

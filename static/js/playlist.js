@@ -1,25 +1,21 @@
 "use strict";
 
 class Playlists {
-    constructor(funcs = null) {
-        this.funcs = funcs
+    add(playlist, song) {
+        this.send("add", {"playlist": playlist, [Array.isArray(song)?"items":"item"]: song});
     }
 
-    add(playlist, song, load = this.funcs?.add) {
-        this.send("add", {"playlist": playlist, "item": song}, load);
+    remove(playlist, item) {
+        this.send("remove", {"playlist": playlist, [Array.isArray(item)?"items":"item"]: item});
     }
 
-    remove(playlist, item, load = this.funcs?.remove) {
-        this.send("remove", {"playlist": playlist, "item": item}, load);
+    move(playlist, item, inc) {
+        this.send("move", {"playlist": playlist, "item": [item, inc]});
     }
 
-    swap(playlist, items, load = this.funcs?.swap) {
-        this.send("swap", {"playlist": playlist, "item": items}, load);
-    }
-
-    new(name = "New Playlist", load = this.funcs?.new) {
+    new(name = "New Playlist") {
         this.send("new", {"item": name}, (id) => {
-            document.querySelectorAll(`.playlists`).forEach((e) => {
+            document.querySelectorAll(".playlists").forEach((e) => {
                 let item = document.createElement("a");
                 item.classList.add("dropdown-item");
                 item.setAttribute("role", "button");
@@ -33,13 +29,13 @@ class Playlists {
         });
     }
 
-    rename(playlist, name = "New Playlist", load = this.funcs?.rename) {
+    rename(playlist, name = "New Playlist") {
         this.send("rename", {"playlist": playlist, "item": name}, () => {
-            document.querySelectorAll(`.playlists [data-id=${playlist}]`).forEach((e) => e.innerText = name);
+            document.querySelectorAll(`.playlists [data-id="${playlist}"]`).forEach((e) => e.innerText = name);
         });
     }
 
-    delete(playlist, load = this.funcs?.delete) {
+    delete(playlist) {
         this.send("delete", {"playlist": playlist}, () => {
             document.querySelectorAll(`.playlists [data-id="${playlist}"]`).forEach((e) => e.remove());
         });

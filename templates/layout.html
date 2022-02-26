@@ -6,7 +6,7 @@
             <span class="visually-hidden">Loading...</span>
         </div>
     </div>
-    <main class="container mt-sm-3 mt-lg-4 mb-container" id="container">
+    <main class="container mt-sm-3 mt-lg-4 pb-container" id="container">
         {% for category, message in get_flashed_messages(with_categories=true) %}
             <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -102,7 +102,7 @@
 
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/search.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/helpers.js') }}"></script>
     <script src="{{ url_for('static', filename='js/playlist.js') }}"></script>
     <script src="{{ url_for('static', filename='js/queue.js') }}"></script>
     <script src="{{ url_for('static', filename='js/player.js') }}"></script>

@@ -15,7 +15,7 @@
                     <div class="playlists">
                         {% for playlist in playlists %}
                             <li><a class="dropdown-item" role="button" data-id="{{ playlist[0] }}"
-                                   onclick="playlists.add({{ playlist[0] }}, selected)">{{ playlist[1] or "Playlist" }}</a>
+                                   onclick="playlists.add({{ playlist[0] }}, get_all(), true)">{{ playlist[1] or "Playlist" }}</a>
                             </li>
                         {% endfor %}
                     </div>
@@ -44,7 +44,7 @@
 
         {% for id, song in album_songs.items() %}
             <tr role="button" data-id="{{ id }}" onclick="queue.add_all({{ id }})"
-                oncontextmenu="open_menu(event, {{ id }})"
+                oncontextmenu="menus.open(event, 'song', {{ id }})"
                 title="{{ ((song.filesize/1048576)|round(1)|string + "MB") if song.filesize }}, {{ ((song.samplerate/1000)|string + "KHz") if song.samplerate }}, {{ (song.bitrate|round(1)|string + "kbps") if song.bitrate }}">
                 <th scope="row" class="w-play">{{ song.track or '' }}</th>
                 <td>{{ song.title }}</td>
