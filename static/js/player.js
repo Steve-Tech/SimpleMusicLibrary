@@ -3,8 +3,6 @@ let songs = JSON.parse(document.getElementById('songs').innerText);
 let queue = new Queue(JSON.parse(document.getElementById('user_queue').innerText));
 let playlists = new Playlists();
 
-let selected;
-
 class Player {
     constructor(audio = new Audio()) {
         this.audio = audio;

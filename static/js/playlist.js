@@ -20,9 +20,10 @@ class Playlists {
                 item.classList.add("dropdown-item");
                 item.setAttribute("role", "button");
                 item.setAttribute("data-id", id);
-                item.onclick = () => {
-                    playlists.add(id, selected);
-                };
+                if (!item.classList.contains("playlist-all"))
+                    item.onclick = () => playlists.add(id, menus.selected);
+                else
+                    item.onclick = () => playlists.add(id, get_all(), true);
                 item.innerText = "New Playlist";
                 e.appendChild(document.createElement("li").appendChild(item))
             });
@@ -50,7 +51,12 @@ class Playlists {
             },
             body: JSON.stringify(data)
         }).then((response) => {
-            return response.json();
-        }).then(load);
+            if (response.ok)
+                return response.json();
+            else
+                throw response
+        }).then(load).catch((err) => {
+            show_toast(`An Error Occurred: ${err.status} ${err.statusText}`)
+        });
     }
 }

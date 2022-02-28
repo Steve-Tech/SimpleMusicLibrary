@@ -176,7 +176,7 @@ menus.build("song",
         "Add to Queue": () => queue.add(menus.selected),
         "elem: Add to Playlist": elem_id("playlist_dropend"),
         "Go to Album": () => page('/albums/' + menus.selected),
-        "Go to Artists": () => page('/artists/' + menus.selected)
+        "Go to Artist": () => page('/artists/' + menus.selected)
     }
 )
 menus.build("playlist",
@@ -190,7 +190,7 @@ menus.build("playlist",
             menus.elem.closest("tr").remove();
         },
         "Go to Album": () => page('/albums/' + menus.selected),
-        "Go to Artists": () => page('/artists/' + menus.selected)
+        "Go to Artist": () => page('/artists/' + menus.selected)
     }
 )
 menus.build("queue",
@@ -199,7 +199,7 @@ menus.build("queue",
         "Play Next": () => queue.unshift(queue.array[menus.selected]),
         "Remove from Queue": () => queue.splice(menus.selected, 1),
         "Go to Album": () => page('/albums/' + menus.selected),
-        "Go to Artists": () => page('/artists/' + menus.selected)
+        "Go to Artist": () => page('/artists/' + menus.selected)
     }
 )
 

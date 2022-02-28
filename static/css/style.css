@@ -29,9 +29,6 @@
 .w-play {
     min-width: 2.5rem;
 }
-.playlist-only {
-    display: none;
-}
 #image {
     max-height: 3rem;
     max-width: 3rem;
@@ -42,7 +39,7 @@
 #toast {
     bottom: 8em;
 }
-#menu, #queue_menu {
+#toast, .context-menu {
     z-index: 1080;
 }
 #loading {

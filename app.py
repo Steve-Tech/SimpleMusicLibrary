@@ -226,6 +226,7 @@ def route_playlist():
         if action == "get":
             return Response(json.dumps(PlaylistSongs.query.filter_by(playlist=list_id).all()), mimetype="application/json")
         elif action == "delete":
+            PlaylistSongs.query.filter_by(playlist=list_id).delete()
             Playlists.query.filter_by(id=list_id, user=current_user.username).delete()
             db.session.commit()
             return '200'
@@ -238,13 +239,16 @@ def route_playlist():
                 return Response(str(new.index), mimetype="application/json")
             elif action == "remove":
                 PlaylistSongs.query.filter_by(index=item, playlist=list_id).delete()
+                db.session.flush()
+                songs = PlaylistSongs.query.filter_by(playlist=list_id).all()
+                for i, song in enumerate(songs, start=1):
+                    song.index = i
                 db.session.commit()
                 return '200'
             elif action == "move":
                 for i in range(item[0], item[0]+item[1], inc := (1 if item[1] > 0 else -1)):
                     old = PlaylistSongs.query.filter_by(index=i, playlist=list_id).scalar()
                     new = PlaylistSongs.query.filter_by(index=i+inc, playlist=list_id).scalar()
-                    print(old, new)
                     old.song, new.song = new.song, old.song
                     db.session.flush()
                 db.session.commit()

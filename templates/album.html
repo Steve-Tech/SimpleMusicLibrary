@@ -12,7 +12,7 @@
                     Add All to Playlist
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="playlist_dropdown_link">
-                    <div class="playlists">
+                    <div class="playlists playlist-all">
                         {% for playlist in playlists %}
                             <li><a class="dropdown-item" role="button" data-id="{{ playlist[0] }}"
                                    onclick="playlists.add({{ playlist[0] }}, get_all(), true)">{{ playlist[1] or "Playlist" }}</a>

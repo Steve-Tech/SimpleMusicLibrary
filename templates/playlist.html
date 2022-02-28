@@ -24,7 +24,7 @@
         {% for item in playlist_list %}
             {% set id = item[0] %}
             {% set song = playlist_songs[id] %}
-            <tr role="button" data-id="{{ id }}" data-index="{{ loop.index }}"
+            <tr role="button" data-id="{{ id }}"
                 onclick="queue.add_all({{ id }})" oncontextmenu="menus.open(event, 'playlist', {{ id }})"
                 draggable="true" ondragstart="drag.start(event)" ondragover="drag.over(event)" ondragend="drag.update_playlist(event, {{ playlist.id }})"
                 title="{{ ((song.filesize/1048576)|round(1)|string + "MB") if song.filesize }}, {{ ((song.samplerate/1000)|string + "KHz") if song.samplerate }}, {{ (song.bitrate|round(1)|string + "kbps") if song.bitrate }}">
