@@ -23,7 +23,7 @@ class Player {
                 this.audio.volume = this.volume;
             if ("mediaSession" in navigator) {
                 navigator.mediaSession.playbackState = "playing";
-                if ((this.audio.duration || this.audio.duration === 0) && this.audio.playbackRate && this.audio.currentTime) {
+                if (this.audio && (this.audio.duration || this.audio.duration === 0) && this.audio.playbackRate && this.audio.currentTime) {
                     navigator.mediaSession.setPositionState({
                         duration: this.audio.duration,
                         playbackRate: this.audio.playbackRate,
@@ -43,9 +43,10 @@ class Player {
                         position: this.audio.currentTime
                     });
                 }
-                if (last_time !== Math.floor(this.audio.currentTime))
+                if (last_time !== Math.floor(this.audio.currentTime)) {
                     last_time = Math.floor(this.audio.currentTime)
-                current_time.innerText = format_time(this.audio.currentTime);
+                    current_time.innerText = format_time(this.audio.currentTime);
+                }
 
             }, 10);
 
@@ -289,7 +290,7 @@ slider.addEventListener("touchend", () => {
 slider.addEventListener("input", (e) => {
     player.time = e.target.value;
     current_time.innerText = format_time(e.target.value);
-    if ("mediaSession" in navigator && (this.audio.duration || this.audio.duration === 0) && this.audio.playbackRate && this.audio.currentTime)
+    if ("mediaSession" in navigator && this.audio && (this.audio.duration || this.audio.duration === 0) && this.audio.playbackRate && this.audio.currentTime)
         navigator.mediaSession.setPositionState({
             duration: this.audio.duration,
             playbackRate: this.audio.playbackRate,
