@@ -238,13 +238,13 @@ def route_playlist():
                 db.session.commit()
                 return Response(str(new.index), mimetype="application/json")
             elif action == "remove":
-                PlaylistSongs.query.filter_by(index=item, playlist=list_id).delete()
+                num_rows = PlaylistSongs.query.filter_by(index=item, playlist=list_id).delete()
                 db.session.flush()
                 songs = PlaylistSongs.query.filter_by(playlist=list_id).all()
                 for i, song in enumerate(songs, start=1):
                     song.index = i
                 db.session.commit()
-                return '200'
+                return '200' if num_rows else abort(400)
             elif action == "move":
                 for i in range(item[0], item[0]+item[1], inc := (1 if item[1] > 0 else -1)):
                     old = PlaylistSongs.query.filter_by(index=i, playlist=list_id).scalar()
@@ -340,7 +340,7 @@ def route_home():
 
 @app.route('/playlists/<int:playlist_id>')
 @login_required
-def route_playlists(playlist_id):
+def route_playlists(playlist_id: int):
     user_queue = get_user_queue()
 
     if playlist := Playlists.query.filter_by(id=playlist_id, user=current_user.username).scalar():
@@ -373,7 +373,7 @@ def route_albums():
 
 @app.route('/albums/<int:song_id>')
 @login_required
-def route_album(song_id):
+def route_album(song_id: int):
     user_queue = get_user_queue()
 
     album_songs = {k: json.loads(v) for k, v in db.session.query(Music.id, Music.json)
@@ -403,7 +403,7 @@ def route_artists():
 
 @app.route('/artists/<int:song_id>')
 @login_required
-def route_artist(song_id):
+def route_artist(song_id: int):
     user_queue = get_user_queue()
 
     query = db.session.query(Music.id, Music.json) \

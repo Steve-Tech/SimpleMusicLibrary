@@ -8,7 +8,7 @@
         <h2>Your Top Songs</h2>
         <div class="row d-flex justify-content-around">
             {% for id, song in top_songs.items() %}
-                <div class="card bg-secondary col-2 m-1 p-0 hover bg-img {{ "d-none d-lg-flex" if loop.index > 8 else ("d-none d-md-flex" if loop.index > 6 else "d-flex") }}"
+                <div class="card bg-secondary col-2 m-1 p-0 hover bg-img {{ "d-none d-xl-flex" if loop.index > 8 else ("d-none d-lg-flex" if loop.index > 6 else "d-flex") }}"
                      role="button" onclick="player.start({{ id }})" oncontextmenu="menus.open(event, 'song', {{ id }})"
                      data-id="{{ id }}">
                     <img class="card-img my-auto" src="/song/{{ id }}/image" alt="Card image" loading="lazy">
@@ -24,7 +24,7 @@
         <h2>Last Listened</h2>
         <div class="row d-flex justify-content-around">
             {% for id, song in last_songs.items() %}
-                <div class="card bg-secondary col-2 m-1 p-0 hover bg-img {{ "d-none d-lg-flex" if loop.index > 8 else ("d-none d-md-flex" if loop.index > 6 else "d-flex") }}"
+                <div class="card bg-secondary col-2 m-1 p-0 hover bg-img {{ "d-none d-xl-flex" if loop.index > 8 else ("d-none d-lg-flex" if loop.index > 6 else "d-flex") }}"
                      role="button"
                      onclick="player.start({{ id }})" oncontextmenu="menus.open(event, 'song', {{ id }})" data-id="{{ id }}">
                     <img class="card-img my-auto" src="/song/{{ id }}/image" alt="Card image" loading="lazy">
