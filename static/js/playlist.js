@@ -25,7 +25,7 @@ class Playlists {
                 else
                     item.onclick = () => playlists.add(id, get_all(), true);
                 item.innerText = "New Playlist";
-                e.appendChild(document.createElement("li").appendChild(item))
+                e.appendChild(document.createElement("li").appendChild(item));
             });
         });
     }
@@ -43,7 +43,7 @@ class Playlists {
     }
 
     send(action, data, load = null) {
-        console.log(action, data)
+        console.log(action, data);
         fetch(`/playlist?action=${action}`, {
             method: 'POST',
             headers: {
@@ -54,9 +54,9 @@ class Playlists {
             if (response.ok)
                 return response.json();
             else
-                throw response
+                throw response;
         }).then(load).catch((err) => {
-            show_toast(`An Error Occurred: ${err.status} ${err.statusText}`)
+            show_toast(`An Error Occurred: ${err.status} ${err.statusText}`);
         });
     }
 }

@@ -1,15 +1,15 @@
 "use strict";
-const elem_id = (elem) => document.getElementById(elem)
-// const elems_class = (elem) => document.getElementsByClassName(elem)
-// const elem_query = (elem) => document.querySelector(elem)
-// const elems_query = (elem) => document.querySelectorAll(elem)
+const elem_id = (elem) => document.getElementById(elem);
+// const elems_class = (elem) => document.getElementsByClassName(elem);
+// const elem_query = (elem) => document.querySelector(elem);
+// const elems_query = (elem) => document.querySelectorAll(elem);
 
 const toast = elem_id("toast");
 let bs_toast = bootstrap.Toast.getOrCreateInstance(toast);
 
 function show_toast(message) {
     toast.getElementsByClassName('toast-body')[0].innerText = message;
-    bs_toast.show()
+    bs_toast.show();
 }
 
 function format_time(time) {
@@ -17,23 +17,23 @@ function format_time(time) {
     if (time > 3600) {
         let mins = Math.floor((time % 3600) / 60);
         let hours = Math.floor(time / 3600);
-        return `${hours}:${mins < 10 ? '0' + mins : mins}`
+        return `${hours}:${mins < 10 ? '0' + mins : mins}`;
     } else {
         let mins = Math.floor(time / 60);
-        return `${mins}:${secs < 10 ? '0' + secs : secs}`
+        return `${mins}:${secs < 10 ? '0' + secs : secs}`;
     }
 }
 
 function page(url, push = true) {
     if (push) window.history.pushState({"page": url}, "Loading - SimpleMusicLibrary", url);
     document.title = "Loading - SimpleMusicLibrary";
-    elem_id("loading").classList.remove("opacity-0")
+    elem_id("loading").classList.remove("opacity-0");
     let xhr = new XMLHttpRequest();
     xhr.open("GET", url, true);
     xhr.responseType = 'document';
     xhr.onload = () => {
-        if (xhr.status !== 200) show_toast(`An Error Occurred: ${xhr.status} ${xhr.statusText}`)
-        elem_id("loading").classList.add("opacity-0")
+        if (xhr.status !== 200) show_toast(`An Error Occurred: ${xhr.status} ${xhr.statusText}`);
+        elem_id("loading").classList.add("opacity-0");
         const new_doc = xhr.responseXML;
         document.title = new_doc.title;
         document.getElementById("navbar").innerHTML = new_doc.getElementById("navbar").innerHTML;
@@ -42,15 +42,15 @@ function page(url, push = true) {
         if (e_songs) Object.assign(songs, JSON.parse(e_songs.innerText));
         setupPage();
     }
-    xhr.send()
+    xhr.send();
 }
 
 function setupPage() {
     document.querySelectorAll("[data-page]").forEach((element) => {
-        const data_page = () => page(element.getAttribute("data-page"))
+        const data_page = () => page(element.getAttribute("data-page"));
         element.removeEventListener("click", data_page);
         element.addEventListener("click", data_page);
-    })
+    });
     updateTables(document.body);
     load_search();
 }
@@ -61,19 +61,19 @@ function updateTables(base_element = document.body) {
         element.addEventListener("mouseenter", () => {
             element.children[0].innerText = '';
             element.children[0].classList.add("bi", "bi-play-circle-fill");
-        })
+        });
         element.addEventListener("mouseleave", () => {
             element.children[0].innerText = text;
             element.children[0].classList.remove("bi", "bi-play-circle-fill");
-        })
-    })
+        });
+    });
 }
 
 function get_all() {
     let ids = [];
     document.querySelectorAll("table.table > tbody > tr[data-id]").forEach((element) => {
         ids.push(element.getAttribute("data-id"));
-    })
+    });
     return ids;
 }
 
@@ -84,7 +84,7 @@ class Drag {
 
     start(e) {
         this.row = e.target;
-        this.original_index = Array.from(e.target.parentNode.children).indexOf(e.target)
+        this.original_index = Array.from(e.target.parentNode.children).indexOf(e.target);
     }
 
     over(e) {
@@ -96,17 +96,17 @@ class Drag {
             } else {
                 e.target.closest("tr").before(this.row);
             }
-            setTimeout(() => {this.ready = true}, 50)
+            setTimeout(() => {this.ready = true}, 50);
             this.ready = false;
         }
     }
 
     update_queue(e) {
-        queue.move(this.original_index, Array.from(e.target.parentNode.children).indexOf(this.row) - this.original_index)
+        queue.move(this.original_index, Array.from(e.target.parentNode.children).indexOf(this.row) - this.original_index);
     }
 
     update_playlist(e, playlist_id) {
-        playlists.move(playlist_id, this.original_index + 1, Array.from(e.target.parentNode.children).indexOf(this.row) - this.original_index)
+        playlists.move(playlist_id, this.original_index + 1, Array.from(e.target.parentNode.children).indexOf(this.row) - this.original_index);
     }
 }
 
@@ -119,9 +119,9 @@ class Menus {
     constructor() {
         document.body.addEventListener('click', (e) => {
             if (!document.querySelector(".dropend > .dropdown-item.dropdown-toggle")?.contains(e.target)) {
-                this.close_all()
+                this.close_all();
             }
-        })
+        });
     }
 
 
@@ -151,13 +151,13 @@ class Menus {
 
     open(e, name, id) {
         if (!(e.altKey || e.ctrlKey || e.metaKey || e.shiftKey))
-            e.preventDefault()
+            e.preventDefault();
         this.selected = id;
         this.elem = e.target;
         menu = this.menus[name];
         menu.style.top = e.pageY + "px";
         menu.style.left = e.pageX + "px";
-        menu.classList.add("show")
+        menu.classList.add("show");
     }
 
     close(name) {
@@ -169,7 +169,7 @@ class Menus {
     }
 }
 
-let menus = new Menus()
+let menus = new Menus();
 menus.build("song",
     {
         "Play": () => player.start(menus.selected),
@@ -205,5 +205,5 @@ menus.build("queue",
     }
 )
 
-window.history.replaceState({"page": window.location.pathname}, document.title)
-setupPage()
+window.history.replaceState({"page": window.location.pathname}, document.title);
+setupPage();

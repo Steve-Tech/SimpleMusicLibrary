@@ -1,21 +1,21 @@
 "use strict";
 let queue_button = elem_id("queue");
-let queue_modal = elem_id('queueModal')
+let queue_modal = elem_id('queueModal');
 
 class Queue {
     current = null;
-    played = []
+    played = [];
 
     constructor(queue = []) {
         this.queue = queue;
     }
 
     get next() {
-        return this.queue[0]
+        return this.queue[0];
     }
 
     get previous() {
-        return this.played[0]
+        return this.played[0];
     }
 
     get array() {
@@ -27,13 +27,13 @@ class Queue {
     }
 
     get full_queue() {
-        return this.current ? [this.current, ...this.queue] : this.queue
+        return this.current ? [this.current, ...this.queue] : this.queue;
     }
 
 
     play(song = this.queue.shift()) {
         this.current = song;
-        this.played.unshift(song)
+        this.played.unshift(song);
         this.update();
         return this.current;
     }
@@ -41,7 +41,7 @@ class Queue {
     play_prev() {
         let song = this.played.shift();
         if (this.current && this.current !== song) {
-            this.queue.unshift(this.current)
+            this.queue.unshift(this.current);
         }
         this.current = song;
         this.update();
@@ -52,35 +52,35 @@ class Queue {
         let before = this.queue.length;
         let adding = false;
         for (let element of document.querySelectorAll("table.table > tbody > tr[data-id]")) {
-            let e_id = element.getAttribute("data-id")
+            let e_id = element.getAttribute("data-id");
             if (e_id == song_id || adding) {
                 this.queue.push(parseInt(e_id));
                 adding = true;
             }
         }
-        this.update()
+        this.update();
         let amount = this.queue.length - before;
         if (amount > 0)
-            show_toast(`Added ${amount} items to queue.`)
-        if (this.current == null) player.start(song_id)
+            show_toast(`Added ${amount} items to queue.`);
+        if (this.current == null) player.start(song_id);
     }
 
     add(song_id) {
         let before = this.queue.length;
-        let isArray = Array.isArray(song_id)
+        let isArray = Array.isArray(song_id);
         if (isArray)
-            this.queue.push(...song_id)
+            this.queue.push(...song_id);
         else
-            this.queue.push(song_id)
-        this.update()
+            this.queue.push(song_id);
+        this.update();
         let amount = this.queue.length - before;
         if (amount > 0)
-            show_toast(`Added ${amount} ${amount !== 1 ? 'items' : 'item'} to queue.`)
+            show_toast(`Added ${amount} ${amount !== 1 ? 'items' : 'item'} to queue.`);
         if (this.current == null) {
             if (isArray)
-                player.start(song_id[0])
+                player.start(song_id[0]);
             else
-                player.start(song_id)
+                player.start(song_id);
         }
     }
 
@@ -93,7 +93,7 @@ class Queue {
             [this.queue[currentIndex], this.queue[randomIndex]] = [
                 this.queue[randomIndex], this.queue[currentIndex]];
         }
-        this.update()
+        this.update();
     }
 
     clear() {
@@ -102,8 +102,8 @@ class Queue {
     }
 
     move(item, inc) {
-        this.queue.splice(item + inc, 0, this.queue.splice(item, 1)[0])
-        this.update()
+        this.queue.splice(item + inc, 0, this.queue.splice(item, 1)[0]);
+        this.update();
     }
 
     push(item) {

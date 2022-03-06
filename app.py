@@ -181,7 +181,7 @@ def route_login():
             login_user(user, remember=form.remember_me.data)
             app.logger.info("%s - username '%s' logged in successfully", request.remote_addr, form.username.data)
             return redirect(request.args.get("next") or url_for('route_home'))
-    return render_template('login.html', title="Login", form=form, disable=True)
+    return render_template('login.html', title="Login", form=form)
 
 
 @app.route('/user', methods=['POST'])

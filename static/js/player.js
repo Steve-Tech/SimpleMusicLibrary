@@ -14,8 +14,8 @@ class Player {
         });
 
         this.audio.addEventListener("play", () => {
-            button.classList.remove("bi-play-fill")
-            button.classList.add("bi-pause-fill")
+            button.classList.remove("bi-play-fill");
+            button.classList.add("bi-pause-fill");
             slider.value = this.audio.currentTime;
             this.audio.muted = volume.disabled;
             if (!this.fading)
@@ -31,7 +31,7 @@ class Player {
                 }
             }
 
-            let last_time = Math.floor(this.audio.currentTime)
+            let last_time = Math.floor(this.audio.currentTime);
 
             this.interval = setInterval(() => {
                 slider.value = this.audio.currentTime;
@@ -43,19 +43,19 @@ class Player {
                     });
                 }
                 if (last_time !== Math.floor(this.audio.currentTime)) {
-                    last_time = Math.floor(this.audio.currentTime)
+                    last_time = Math.floor(this.audio.currentTime);
                     current_time.innerText = format_time(this.audio.currentTime);
                 }
 
             }, 10);
 
 
-            if (bootstrap.Modal.getInstance(queue_modal)?._isShown) update_modal()
+            if (bootstrap.Modal.getInstance(queue_modal)?._isShown) update_modal();
         });
 
         this.audio.addEventListener("pause", () => {
-            button.classList.remove("bi-pause-fill")
-            button.classList.add("bi-play-fill")
+            button.classList.remove("bi-pause-fill");
+            button.classList.add("bi-play-fill");
             if ("mediaSession" in navigator)
                 navigator.mediaSession.playbackState = "paused";
             clearInterval(this.interval);
@@ -112,7 +112,7 @@ class Player {
 
     start(id = queue.next, push = true) {
         if (!this.audio.paused)
-            this.audio.pause()
+            this.audio.pause();
         this.audio.src = `/song/${id}`;
 
         this.play(false, id, () => {
@@ -124,17 +124,17 @@ class Player {
             let xhr = new XMLHttpRequest();
             xhr.open("GET", `/song/${id}/listen`, true);
             xhr.send();
-        })
+        });
     }
 
     play(fast = false, id = queue.current, run = Function()) {
         this.audio.play().then(() => {
-            run()
+            run();
 
             if ("mediaSession" in navigator) {
-                navigator.mediaSession.playbackState = 'playing'
+                navigator.mediaSession.playbackState = 'playing';
 
-                let song = songs[id]
+                let song = songs[id];
 
                 navigator.mediaSession.metadata = new MediaMetadata({
                     title: song.title,
@@ -153,17 +153,17 @@ class Player {
             }
 
         }).catch((error) => {
-            console.error(error)
+            console.error(error);
             show_toast(`An Error Occurred: ${error.message}`);
-            button.classList.remove("bi-pause-fill")
-            button.classList.add("bi-play-fill")
+            button.classList.remove("bi-pause-fill");
+            button.classList.add("bi-play-fill");
             if ("mediaSession" in navigator)
                 navigator.mediaSession.playbackState = "none";
             clearInterval(this.interval);
         });
 
         if (!fast) {
-            this.fading = true
+            this.fading = true;
             this.audio.volume = 0;
             let vol_interval = setInterval(() => {
                 if (this.audio.volume + 0.05 < this.volume) {
@@ -173,54 +173,54 @@ class Player {
                     this.fading = false;
                     clearInterval(vol_interval);
                 }
-            }, 10)
+            }, 10);
         } else {
-            this.audio.volume = this.volume
+            this.audio.volume = this.volume;
         }
 
     }
 
     pause(fast = false) {
         if (fast) {
-            this.audio.pause()
+            this.audio.pause();
         } else {
             this.fading = true;
             let vol_interval = setInterval(() => {
                 if (this.audio.volume - 0.05 > 0) {
                     this.audio.volume -= 0.05;
                 } else {
-                    this.audio.pause()
+                    this.audio.pause();
                     this.fading = false;
                     clearInterval(vol_interval);
                 }
-            }, 10)
+            }, 10);
         }
     }
 
     toggle() {
-        if (queue.current == null) this.start()
+        if (queue.current == null) this.start();
         else this.audio.paused ? this.play() : this.pause();
     }
 
 
     loop() {
-        this.looping++
+        this.looping++;
         switch (this.looping) {
             case 1: // On
-                show_toast("Looping Queue")
-                loop_button.classList.remove('off', 'one')
+                show_toast("Looping Queue");
+                loop_button.classList.remove('off', 'one');
                 this.audio.loop = false;
                 break;
             case 2: // 1 song
-                show_toast("Looping Song")
-                loop_button.classList.remove('off')
-                loop_button.classList.add('one')
+                show_toast("Looping Song");
+                loop_button.classList.remove('off');
+                loop_button.classList.add('one');
                 this.audio.loop = true;
                 break;
             default:
-                show_toast("Looping Off")
+                show_toast("Looping Off");
                 this.looping = 0;
-                loop_button.classList.remove('one')
+                loop_button.classList.remove('one');
                 loop_button.classList.add('off');
                 this.audio.loop = false;
                 break;
@@ -239,7 +239,7 @@ class Player {
             song_image.src = `/song/${id}/image`;
             song_title.innerText = song.title;
             song_artist.innerText = song.artist;
-            song_info.title = `${(song.filesize / 1048576).toFixed(1)}MB, ${song.samplerate / 1000}KHz, ${song.bitrate.toFixed(1)}kbps`
+            song_info.title = `${(song.filesize / 1048576).toFixed(1)}MB, ${song.samplerate / 1000}KHz, ${song.bitrate.toFixed(1)}kbps`;
             song_info.classList.remove("invisible");
             if (time) {
                 slider.max = song.duration;
@@ -272,19 +272,19 @@ let max_time = elem_id("max_time");
 slider.addEventListener("mousedown", () => {
     if (!player.paused)
         player.pause(true);
-})
+});
 slider.addEventListener("touchstart", () => {
     if (!player.paused)
         player.pause(true);
-})
+});
 slider.addEventListener("mouseup", () => {
     if (player.paused)
-        player.play(true)
-})
+        player.play(true);
+});
 slider.addEventListener("touchend", () => {
     if (player.paused)
-        player.play(true)
-})
+        player.play(true);
+});
 
 slider.addEventListener("input", (e) => {
     player.time = e.target.value;
@@ -295,38 +295,38 @@ slider.addEventListener("input", (e) => {
             playbackRate: this.audio.playbackRate,
             position: this.audio.currentTime
         });
-})
+});
 
 volume.addEventListener("change", (e) => {
     player.set_volume = e.target.value;
-    e.target.title = (e.target.value * 100) + '%'
+    e.target.title = (e.target.value * 100) + '%';
     localStorage.setItem('volume', e.target.value);
-})
+});
 volume.addEventListener("input", (e) => {
     player.set_volume = e.target.value;
-    e.target.title = (e.target.value * 100) + '%'
-})
+    e.target.title = (e.target.value * 100) + '%';
+});
 mute.addEventListener("click", (e) => {
     player.muted = !player.muted;
     volume.disabled = player.muted;
     if (player.muted) {
-        e.target.classList.remove("bi-volume-up-fill")
-        e.target.classList.add("bi-volume-mute-fill")
+        e.target.classList.remove("bi-volume-up-fill");
+        e.target.classList.add("bi-volume-mute-fill");
     } else {
-        e.target.classList.remove("bi-volume-mute-fill")
-        e.target.classList.add("bi-volume-up-fill")
+        e.target.classList.remove("bi-volume-mute-fill");
+        e.target.classList.add("bi-volume-up-fill");
     }
-})
+});
 
 
 if ("mediaSession" in navigator) {
     navigator.mediaSession.setActionHandler('play', () => {
-        if (queue.current == null) player.start()
+        if (queue.current == null) player.start();
         else player.play();
     });
     navigator.mediaSession.setActionHandler('pause', () => player.pause());
     navigator.mediaSession.setActionHandler('stop', () => player.pause());
-    navigator.mediaSession.setActionHandler('seekbackward', (e) => player.time = Math.max(player.time - (e.seekOffset || 10), 0))
+    navigator.mediaSession.setActionHandler('seekbackward', (e) => player.time = Math.max(player.time - (e.seekOffset || 10), 0));
     navigator.mediaSession.setActionHandler('seekforward', (e) => player.time = Math.min(player.time + (e.seekOffset || 10), player.duration));
     navigator.mediaSession.setActionHandler('seekto', (e) => {
         player.time = e.seekTime;
@@ -346,14 +346,14 @@ shuffle_button.addEventListener("click", () => {
 });
 forward_button.addEventListener("click", () => {
     if (queue.length) player.start(queue.shift());
-    else player.time = player.duration
+    else player.time = player.duration;
 });
 back_button.addEventListener("click", () => player.play());
 
-queue_modal.addEventListener('show.bs.modal', update_modal)
+queue_modal.addEventListener('show.bs.modal', update_modal);
 
 window.addEventListener('popstate', (e) => {
-    if ("page" in e.state) page(e.state.page, false)
+    if ("page" in e.state) page(e.state.page, false);
 });
 
 
@@ -361,7 +361,7 @@ let drag = new Drag();
 
 function update_modal() {
     let modal_content = queue_modal.getElementsByClassName("modal-body")[0];
-    let table = modal_content.querySelector("table > tbody")
+    let table = modal_content.querySelector("table > tbody");
     while (table.firstChild) {
         table.removeChild(table.lastChild);
     }
@@ -377,17 +377,17 @@ function update_modal() {
         let td = document.createElement("td");
         td.innerText = format_time(song['duration']);
         tr.appendChild(td);
-        tr.setAttribute("draggable", "true")
-        tr.addEventListener('click', () => player.play(song_id))
-        tr.addEventListener('contextmenu', (e) => menus.open(e, "queue", index))
-        tr.addEventListener('dragstart', (e) => drag.start(e))
-        tr.addEventListener('dragover', (e) => drag.over(e))
-        tr.addEventListener('dragend', (e) => drag.update_queue(e))
-        tr.setAttribute('role', 'button')
+        tr.setAttribute("draggable", "true");
+        tr.addEventListener('click', () => player.play(song_id));
+        tr.addEventListener('contextmenu', (e) => menus.open(e, "queue", index));
+        tr.addEventListener('dragstart', (e) => drag.start(e));
+        tr.addEventListener('dragover', (e) => drag.over(e));
+        tr.addEventListener('dragend', (e) => drag.update_queue(e));
+        tr.setAttribute('role', 'button');
         table.appendChild(tr);
     }
 
-    queue_modal.querySelector("div.modal-footer > span").innerText = `${queue.length} Items`
+    queue_modal.querySelector("div.modal-footer > span").innerText = `${queue.length} Items`;
     updateTables(table);
 }
 
@@ -395,8 +395,8 @@ function load() {
     let new_volume = localStorage.getItem('volume') || 1;
     player.set_volume = new_volume;
     volume.value = new_volume;
-    volume.title = (new_volume * 100) + '%'
+    volume.title = (new_volume * 100) + '%';
     player.display(queue.next);
 }
 
-load()
+load();
