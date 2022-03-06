@@ -14,7 +14,8 @@ class Player {
         });
 
         this.audio.addEventListener("play", () => {
-            button.innerText = '⏸';
+            button.classList.remove("bi-play-fill")
+            button.classList.add("bi-pause-fill")
             slider.value = this.audio.currentTime;
             this.audio.muted = volume.disabled;
             if (!this.fading)
@@ -53,7 +54,8 @@ class Player {
         });
 
         this.audio.addEventListener("pause", () => {
-            button.innerText = '▶';
+            button.classList.remove("bi-pause-fill")
+            button.classList.add("bi-play-fill")
             if ("mediaSession" in navigator)
                 navigator.mediaSession.playbackState = "paused";
             clearInterval(this.interval);
@@ -153,7 +155,8 @@ class Player {
         }).catch((error) => {
             console.error(error)
             show_toast(`An Error Occurred: ${error.message}`);
-            button.innerText = '▶';
+            button.classList.remove("bi-pause-fill")
+            button.classList.add("bi-play-fill")
             if ("mediaSession" in navigator)
                 navigator.mediaSession.playbackState = "none";
             clearInterval(this.interval);
@@ -182,7 +185,6 @@ class Player {
             this.audio.pause()
         } else {
             this.fading = true;
-            button.innerText = '⏸';
             let vol_interval = setInterval(() => {
                 if (this.audio.volume - 0.05 > 0) {
                     this.audio.volume -= 0.05;
@@ -206,20 +208,19 @@ class Player {
         switch (this.looping) {
             case 1: // On
                 show_toast("Looping Queue")
-                loop_button.innerText = '🔁';
-                loop_button.classList.remove('off')
+                loop_button.classList.remove('off', 'one')
                 this.audio.loop = false;
                 break;
             case 2: // 1 song
                 show_toast("Looping Song")
-                loop_button.innerText = '🔂';
                 loop_button.classList.remove('off')
+                loop_button.classList.add('one')
                 this.audio.loop = true;
                 break;
             default:
                 show_toast("Looping Off")
                 this.looping = 0;
-                loop_button.innerText = '🔁';
+                loop_button.classList.remove('one')
                 loop_button.classList.add('off');
                 this.audio.loop = false;
                 break;
@@ -308,7 +309,13 @@ volume.addEventListener("input", (e) => {
 mute.addEventListener("click", (e) => {
     player.muted = !player.muted;
     volume.disabled = player.muted;
-    player.muted ? e.target.innerText = '🔇' : e.target.innerText = '🔊';
+    if (player.muted) {
+        e.target.classList.remove("bi-volume-up-fill")
+        e.target.classList.add("bi-volume-mute-fill")
+    } else {
+        e.target.classList.remove("bi-volume-mute-fill")
+        e.target.classList.add("bi-volume-up-fill")
+    }
 })
 
 

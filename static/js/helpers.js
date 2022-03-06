@@ -51,28 +51,30 @@ function setupPage() {
         element.removeEventListener("click", data_page);
         element.addEventListener("click", data_page);
     })
-    updateTables(document.body)
-    load_search()
+    updateTables(document.body);
+    load_search();
 }
 
 function updateTables(base_element = document.body) {
     base_element.querySelectorAll("table.table > tbody > tr").forEach((element) => {
         let text = element.children[0].innerText;
-        element.addEventListener("mouseenter", (e) => {
-            element.children[0].innerText = '▶';
+        element.addEventListener("mouseenter", () => {
+            element.children[0].innerText = '';
+            element.children[0].classList.add("bi", "bi-play-circle-fill");
         })
-        element.addEventListener("mouseleave", (e) => {
+        element.addEventListener("mouseleave", () => {
             element.children[0].innerText = text;
+            element.children[0].classList.remove("bi", "bi-play-circle-fill");
         })
     })
 }
 
 function get_all() {
-    let ids = []
+    let ids = [];
     document.querySelectorAll("table.table > tbody > tr[data-id]").forEach((element) => {
-        ids.push(element.getAttribute("data-id"))
+        ids.push(element.getAttribute("data-id"));
     })
-    return ids
+    return ids;
 }
 
 class Drag {

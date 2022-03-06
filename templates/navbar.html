@@ -26,14 +26,12 @@
                         <label for="search" class="visually-hidden">Search</label>
                         <input id="search" name="q" class="form-control" type="text" placeholder="Search" title="Search"
                                value="{{ query }}">
-                        <button class="btn btn-light ms-sm-2" type="submit">&#x1F50D;</button>
+                        <button class="btn btn-light ms-sm-2 bi bi-search" type="submit"></button>
                     </form>
-                    <div class="">
-                        <button class="btn btn-light my-sm-0" type="button" data-bs-toggle="modal"
-                                data-bs-target="#userModal">&#x2699;
-                        </button>
-                        {#                <a class="btn btn-light my-2 my-sm-0" href="/logout?next={{ request.full_path }}">&#x2699;</a>#}
-                    </div>
+                    <button class="btn btn-light my-sm-0 bi bi-gear" type="button" data-bs-toggle="modal"
+                            data-bs-target="#userModal"></button>
+                    {#<a class="btn btn-light my-2 my-sm-0 bi bi-box-arrow-right"
+                       href="/logout?next={{ request.full_path }}"></a>#}
                 </div>
             </div>
         </div>
