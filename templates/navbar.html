@@ -6,31 +6,35 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarLinks">
-            <ul class="navbar-nav me-auto">
-                {% set navbar = {"Home": "/", "Albums": "/albums", "Artists": "/artists"} %}
-                {% for page, href in navbar.items() %}
-                    {% if page == currentpage or (page == title and currentpage is not defined) %}
-                        <li class="nav-item">
-                            <a class="nav-link active" data-page="{{ href }}">{{ page }}
-                                <span class="visually-hidden">(current)</span>
-                            </a>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" data-page="{{ href }}">{{ page }}</a>
-                        </li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
-
-      <form id="search_form" class="d-flex mx-2" method="get" action="/search">
-          <label for="search" class="visually-hidden">Search</label>
-          <input id="search" name="q" class="form-control" type="text" placeholder="Search" title="Search" value="{{ query }}">
-        <button class="btn btn-light ms-sm-2" type="submit">&#x1F50D;</button>
-      </form>
-            <div class="my-2 my-lg-0">
-                <button class="btn btn-light my-2 my-sm-0" type="button" data-bs-toggle="modal" data-bs-target="#userModal">&#x2699;</button>
-{#                <a class="btn btn-light my-2 my-sm-0" href="/logout?next={{ request.full_path }}">&#x2699;</a>#}
+            <div class="d-flex flex-wrap w-100 mt-2 mt-lg-auto">
+                <ul class="navbar-nav flex-row me-auto align-self-center">
+                    {% set navbar = {"Home": "/", "Albums": "/albums", "Artists": "/artists"} %}
+                    {% for page, href in navbar.items() %}
+                        {% if page == currentpage or (page == title and currentpage is not defined) %}
+                            <li class="nav-item">
+                                <a class="nav-link p-1 active" aria-current="page" data-page="{{ href }}">{{ page }}</a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link p-1" data-page="{{ href }}">{{ page }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+                <div class="d-flex">
+                    <form id="search_form" class="d-flex me-2" method="get" action="/search">
+                        <label for="search" class="visually-hidden">Search</label>
+                        <input id="search" name="q" class="form-control" type="text" placeholder="Search" title="Search"
+                               value="{{ query }}">
+                        <button class="btn btn-light ms-sm-2" type="submit">&#x1F50D;</button>
+                    </form>
+                    <div class="">
+                        <button class="btn btn-light my-sm-0" type="button" data-bs-toggle="modal"
+                                data-bs-target="#userModal">&#x2699;
+                        </button>
+                        {#                <a class="btn btn-light my-2 my-sm-0" href="/logout?next={{ request.full_path }}">&#x2699;</a>#}
+                    </div>
+                </div>
             </div>
         </div>
     </div>

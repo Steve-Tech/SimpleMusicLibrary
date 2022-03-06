@@ -27,7 +27,7 @@ class Queue {
     }
 
     get full_queue() {
-        return this.current ? [this.current].concat(this.queue) : this.queue
+        return this.current ? [this.current, ...this.queue] : this.queue
     }
 
 
@@ -53,10 +53,9 @@ class Queue {
         let adding = false;
         for (let element of document.querySelectorAll("table.table > tbody > tr[data-id]")) {
             let e_id = element.getAttribute("data-id")
-            if (adding) {
+            if (e_id == song_id || adding) {
                 this.queue.push(parseInt(e_id));
-            } else {
-                adding = e_id == song_id;
+                adding = true;
             }
         }
         this.update()

@@ -1,7 +1,7 @@
 .bg-img {
     background-image: url("/static/img/unknown.svg");
-    min-width: 190px;
-    min-height: 190px;
+    min-width: 130px;
+    min-height: 130px;
     background-position: center;
     background-repeat: no-repeat;
     background-size: 80% 100%;
@@ -47,4 +47,17 @@
 }
 [data-page] {
     cursor: pointer;
+}
+
+@media screen and (min-width: 576px) {
+    .bg-img {
+        min-width: 160px;
+        min-height: 160px;
+    }
+}
+@media screen and (min-width: 768px) {
+    .bg-img {
+        min-width: 190px;
+        min-height: 190px;
+    }
 }
