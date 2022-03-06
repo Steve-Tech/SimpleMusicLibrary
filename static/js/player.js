@@ -118,7 +118,8 @@ class Player {
         this.play(false, id, () => {
             if (queue.next === id)
                 queue.shift();
-            queue.play(id);
+            if (push)
+                queue.play(id);
             this.display(id);
 
             let xhr = new XMLHttpRequest();
@@ -348,7 +349,7 @@ forward_button.addEventListener("click", () => {
     if (queue.length) player.start(queue.shift());
     else player.time = player.duration;
 });
-back_button.addEventListener("click", () => player.play());
+back_button.addEventListener("click", () => player.start(queue.play_prev(), false));
 
 queue_modal.addEventListener('show.bs.modal', update_modal);
 
