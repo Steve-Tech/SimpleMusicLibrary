@@ -12,8 +12,7 @@ class LoginForm(FlaskForm):
 
 
 class UserData(FlaskForm):
-    firstName = StringField('First Name')
-    lastName = StringField('Last Name')
-    theme = SelectField('Theme', [DataRequired()], choices=["Default"] + [theme.rstrip(".css") for theme in sorted(listdir("static/css/themes"))], default="Default")
+    name = StringField('Name')
     password = PasswordField('Change Password')
+    theme = SelectField('Theme', [DataRequired()], choices=["Default"] + [theme.rstrip(".css") for theme in sorted(listdir("static/css/themes"))], default="Default")
     submit = SubmitField('Submit')

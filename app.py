@@ -136,6 +136,7 @@ def inject_vars():
     if current_user.is_authenticated:
         return dict(
             theme=request.args.get("theme") or current_user.theme,
+            form=UserData(name=current_user.name, theme=current_user.theme),
             playlists=get_user_playlists(),
             # queue=list(user_queue().keys())
         )
@@ -187,13 +188,11 @@ def route_login():
 @app.route('/user', methods=['POST'])
 @login_required
 def route_user():
-    form = UserData(firstName=current_user.firstName, lastName=current_user.lastName, theme=current_user.theme)
+    form = UserData(name=current_user.name, theme=current_user.theme)
     if form.validate_on_submit():
         user = Users.query.get(current_user.username)
-        if form.firstName.data:
-            user.firstName = form.firstName.data
-        if form.lastName.data:
-            user.lastName = form.lastName.data
+        if form.name.data:
+            user.name = form.name.data
         if form.password.data:
             user.password = blake2b(bytes(form.password.data, "utf-8")).hexdigest()
         if form.theme.data:
@@ -300,9 +299,7 @@ def route_search():
     user_queue = get_user_queue()
 
     return render_template("search.html", title="Search",
-                           query=s_query, results=songs, songs=songs | user_queue, queue=list(user_queue.keys()),
-                           form=UserData(firstName=current_user.firstName, lastName=current_user.lastName,
-                                         theme=current_user.theme))
+                           query=s_query, results=songs, songs=songs | user_queue, queue=list(user_queue.keys()))
 
 
 @app.route("/logout")
@@ -333,9 +330,7 @@ def route_home():
 
     return render_template("home.html", title="Home",
                            top_songs=top, last_songs=last, songs=top | last | user_queue,
-                           queue=list(user_queue.keys()), playlists=playlists,
-                           form=UserData(firstName=current_user.firstName, lastName=current_user.lastName,
-                                         theme=current_user.theme))
+                           queue=list(user_queue.keys()), playlists=playlists)
 
 
 @app.route('/playlists/<int:playlist_id>')
@@ -352,9 +347,7 @@ def route_playlists(playlist_id: int):
 
         return render_template("playlist.html", title=playlist.name, playlist=playlist,
                                playlist_songs=playlist_songs, playlist_list=playlist_list,
-                               songs=playlist_songs | user_queue, queue=list(user_queue.keys()),
-                               form=UserData(firstName=current_user.firstName, lastName=current_user.lastName,
-                                             theme=current_user.theme))
+                               songs=playlist_songs | user_queue, queue=list(user_queue.keys()))
     return abort(403)
 
 
@@ -366,9 +359,7 @@ def route_albums():
     return render_template("albums.html", title="Albums", theme=request.args.get("theme") or current_user.theme,
                            albums={k: json.loads(v) for k, v in
                                    db.session.query(Music.id, Music.json).group_by(Music.album).order_by(Music.album)},
-                           songs=user_queue, queue=list(user_queue.keys()),
-                           form=UserData(firstName=current_user.firstName, lastName=current_user.lastName,
-                                         theme=current_user.theme))
+                           songs=user_queue, queue=list(user_queue.keys()))
 
 
 @app.route('/albums/<int:song_id>')
@@ -382,9 +373,7 @@ def route_album(song_id: int):
         .order_by(Music.disc, func.length(Music.track), Music.track)}
 
     return render_template("album.html", title=list(album_songs.values())[0]['album'],
-                           album_songs=album_songs, songs=album_songs | user_queue, queue=list(user_queue.keys()),
-                           form=UserData(firstName=current_user.firstName, lastName=current_user.lastName,
-                                         theme=current_user.theme))
+                           album_songs=album_songs, songs=album_songs | user_queue, queue=list(user_queue.keys()))
 
 
 @app.route('/artists')
@@ -396,9 +385,7 @@ def route_artists():
                            artists={k: json.loads(v) for k, v in
                                     db.session.query(Music.id, Music.json).group_by(Music.artist)
                            .order_by(Music.artist)},
-                           songs=user_queue, queue=list(user_queue.keys()),
-                           form=UserData(firstName=current_user.firstName, lastName=current_user.lastName,
-                                         theme=current_user.theme))
+                           songs=user_queue, queue=list(user_queue.keys()))
 
 
 @app.route('/artists/<int:song_id>')
@@ -415,9 +402,7 @@ def route_artist(song_id: int):
 
     return render_template("artist.html", title=list(artist_songs.values())[0]['artist'],
                            albums={k: json.loads(v) for k, v in query.group_by(Music.album).order_by(Music.album)},
-                           songs=artist_songs | user_queue, artist=artist_songs, queue=list(user_queue.keys()),
-                           form=UserData(firstName=current_user.firstName, lastName=current_user.lastName,
-                                         theme=current_user.theme))
+                           songs=artist_songs | user_queue, artist=artist_songs, queue=list(user_queue.keys()))
 
 
 @app.route('/song/<int:song_id>')

@@ -3,7 +3,7 @@
     {% if songs %}
         {% set rand_genre = (songs.values()|list|random).genre %}
         <h1>{{ (['Welcome', 'Hello', 'Hi', ['Happy ', 'Are You ']|random + rand_genre + 'ing, '] if rand_genre else ['Welcome', 'Hello', 'Hi']) | random }}
-            {{ current_user.firstName or current_user.username }}{{ ['!', '.', ',', ''] | random }}</h1>
+            {{ current_user.name or current_user.username }}{{ ['!', '.', ',', ''] | random }}</h1>
         <hr>
         <h2>Your Top Songs</h2>
         <div class="row d-flex justify-content-around">
@@ -40,7 +40,7 @@
     {% else %}
 
         <h1>{{ ['Welcome', 'Hello', 'Hi'] | random }}
-            {{ current_user.firstName or current_user.username.capitalize() }}{{ ['!', '.', ',', ''] | random }}</h1>
+            {{ current_user.name or current_user.username.capitalize() }}{{ ['!', '.', ',', ''] | random }}</h1>
         <h2>Listen to some songs and they will appear here!</h2>
         <button class="btn btn-primary" data-page="/albums">View Songs by Album</button>
         <button class="btn btn-primary" data-page="/artists">View Songs by Artists</button>

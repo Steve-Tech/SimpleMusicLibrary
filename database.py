@@ -7,8 +7,7 @@ db = SQLAlchemy()
 class Users(UserMixin, db.Model):
     username = db.Column(db.String, primary_key=True)
     password = db.Column(db.String, nullable=False)
-    firstName = db.Column(db.String)
-    lastName = db.Column(db.String)
+    name = db.Column(db.String)
     theme = db.Column(db.String)
 
     def get_id(self):  # Required for flask-login to get the id of a user
