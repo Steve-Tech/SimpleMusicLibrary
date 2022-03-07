@@ -17,6 +17,7 @@ class Player {
             button.classList.remove("bi-play-fill");
             button.classList.add("bi-pause-fill");
             slider.value = this.audio.currentTime;
+            current_time.innerText = format_time(this.audio.currentTime);
             this.audio.muted = volume.disabled;
             if (!this.fading)
                 this.audio.volume = this.volume;
@@ -254,9 +255,6 @@ let player = new Player();
 
 // TODO: Make this not a mess
 
-let menu = elem_id("menu");
-let queue_menu = elem_id("queue_menu");
-
 let button = elem_id("play");
 let loop_button = elem_id("loop");
 let shuffle_button = elem_id("shuffle");
@@ -300,12 +298,12 @@ slider.addEventListener("input", (e) => {
 
 volume.addEventListener("change", (e) => {
     player.set_volume = e.target.value;
-    e.target.title = (e.target.value * 100) + '%';
+    e.target.title = Math.round(e.target.value * 100) + '%';
     localStorage.setItem('volume', e.target.value);
 });
 volume.addEventListener("input", (e) => {
     player.set_volume = e.target.value;
-    e.target.title = (e.target.value * 100) + '%';
+    e.target.title = Math.round(e.target.value * 100) + '%';
 });
 mute.addEventListener("click", (e) => {
     player.muted = !player.muted;
@@ -396,7 +394,7 @@ function load() {
     let new_volume = localStorage.getItem('volume') || 1;
     player.set_volume = new_volume;
     volume.value = new_volume;
-    volume.title = (new_volume * 100) + '%';
+    volume.title = Math.round(new_volume * 100) + '%';
     player.display(queue.next);
 }
 

@@ -154,7 +154,7 @@ class Menus {
             e.preventDefault();
         this.selected = id;
         this.elem = e.target;
-        menu = this.menus[name];
+        let menu = this.menus[name];
         menu.style.top = e.pageY + "px";
         menu.style.left = e.pageX + "px";
         menu.classList.add("show");
@@ -175,7 +175,7 @@ menus.build("song",
         "Play": () => player.start(menus.selected),
         "Play Next": () => queue.unshift(menus.selected),
         "Add to Queue": () => queue.add(menus.selected),
-        "Add All to Queue": () => queue.add_all(menus.selected),
+        "Add Following to Queue": () => queue.add_all(menus.selected),
         "elem: Add to Playlist": elem_id("playlist_dropend"),
         "Go to Album": () => page('/albums/' + menus.selected),
         "Go to Artist": () => page('/artists/' + menus.selected)
@@ -186,7 +186,7 @@ menus.build("playlist",
         "Play": () => player.start(menus.selected),
         "Play Next": () => queue.unshift(menus.selected),
         "Add to Queue": () => queue.add(menus.selected),
-        "Add All to Queue": () => queue.add_all(menus.selected),
+        "Add Following to Queue": () => queue.add_all(menus.selected),
         "Remove from Playlist": () => {
             playlists.remove(elem_id("playlist").getAttribute("data-id"), Array.from(menus.elem.closest("tbody").children).indexOf(menus.elem.closest("tr")) + 1);
             menus.elem.closest("tr").remove();
