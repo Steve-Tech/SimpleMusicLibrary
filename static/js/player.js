@@ -35,20 +35,25 @@ class Player {
             let last_time = Math.floor(this.audio.currentTime);
 
             this.interval = setInterval(() => {
-                slider.value = this.audio.currentTime;
-                if ((this.audio.duration || this.audio.duration === 0) && this.audio.playbackRate && this.audio.currentTime) {
+                let duration = this.audio.duration;
+                let playbackRate = this.audio.playbackRate;
+                let currentTime = this.audio.currentTime;
+                slider.value = currentTime;
+                if (( duration || duration === 0) && playbackRate && currentTime) {
                     navigator.mediaSession.setPositionState({
-                        duration: this.audio.duration,
-                        playbackRate: this.audio.playbackRate,
-                        position: this.audio.currentTime
+                        duration: duration,
+                        playbackRate: playbackRate,
+                        position: currentTime
                     });
                 }
-                if (last_time !== Math.floor(this.audio.currentTime)) {
-                    last_time = Math.floor(this.audio.currentTime);
-                    current_time.innerText = format_time(this.audio.currentTime);
+                if (last_time !== Math.floor(currentTime)) {
+                    last_time = Math.floor(currentTime);
+                    current_time.innerText = format_time(currentTime);
                 }
 
-            }, 10);
+                // slider.style.setProperty("--buffered", `${(this.audio.buffered.end(player.audio.buffered.length-1) / duration)*100}%`)
+
+            }, 50);
 
 
             if (bootstrap.Modal.getInstance(queue_modal)?._isShown) update_modal();
@@ -143,7 +148,7 @@ class Player {
                     artist: song.artist,
                     album: song.album,
                     artwork: [
-                        {src: `/song/${id}/image`}
+                        {src: `/image/${song.image}`}
                     ]
                 });
 
@@ -238,7 +243,7 @@ class Player {
 
         if (id != null) {
             let song = songs[id];
-            song_image.src = `/song/${id}/image`;
+            song_image.src = `/image/${song.image}`;
             song_title.innerText = song.title;
             song_artist.innerText = song.artist;
             song_info.title = `${(song.filesize / 1048576).toFixed(1)}MB, ${song.samplerate / 1000}KHz, ${song.bitrate.toFixed(1)}kbps`;

@@ -11,7 +11,7 @@
                 <div class="card bg-secondary col-2 m-1 p-0 hover bg-img {{ "d-none d-xl-flex" if loop.index > 8 else ("d-none d-lg-flex" if loop.index > 6 else "d-flex") }}"
                      role="button" onclick="player.start({{ id }})" oncontextmenu="menus.open(event, 'song', {{ id }})"
                      data-id="{{ id }}">
-                    <img class="card-img my-auto" src="/song/{{ id }}/image" alt="Card image" loading="lazy">
+                    <img class="card-img my-auto" src="/image/{{ song.image }}" alt="Card image" loading="lazy">
                     <div class="card-img-overlay text-center p-0 d-flex align-content-between flex-column">
                         <span class="text-light fw-bold position-absolute top-0 bg-dark bg-opacity-50 w-100">{{ song.title }}</span>
                         <span class="text-light small position-absolute bottom-0 bg-dark bg-opacity-50 w-100">{{ song.album }}</span>
@@ -27,7 +27,7 @@
                 <div class="card bg-secondary col-2 m-1 p-0 hover bg-img {{ "d-none d-xl-flex" if loop.index > 8 else ("d-none d-lg-flex" if loop.index > 6 else "d-flex") }}"
                      role="button"
                      onclick="player.start({{ id }})" oncontextmenu="menus.open(event, 'song', {{ id }})" data-id="{{ id }}">
-                    <img class="card-img my-auto" src="/song/{{ id }}/image" alt="Card image" loading="lazy">
+                    <img class="card-img my-auto" src="/image/{{ song.image }}" alt="Card image" loading="lazy">
                     <div class="card-img-overlay text-center p-0 d-flex align-content-between flex-column">
                         <span class="text-light fw-bold position-absolute top-0 bg-dark bg-opacity-50 w-100">{{ song.title }}</span>
                         <span class="text-light small position-absolute bottom-0 bg-dark bg-opacity-50 w-100">{{ song.album }}</span>

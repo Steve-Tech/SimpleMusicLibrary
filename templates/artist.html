@@ -6,7 +6,7 @@
         {% for id, song in albums.items() %}
             <div class="card bg-secondary col-2 m-1 p-0 hover bg-img" role="button"
                  data-page="/albums/{{ id }}" data-id="{{ id }}">
-                <img class="card-img my-auto" src="/song/{{ id }}/image" alt="Card image" loading="lazy">
+                <img class="card-img my-auto" src="/image/{{ song.image }}" alt="Card image" loading="lazy">
                 <div class="card-img-overlay text-center p-0 d-flex align-content-between flex-column">
                     <span class="text-light fw-bold position-absolute top-0 bg-dark bg-opacity-50 w-100">{{ song.album }}</span>
                     {% if song.year %}

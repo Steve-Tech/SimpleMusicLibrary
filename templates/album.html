@@ -2,7 +2,7 @@
 {% block content %}
     {% set album = (album_songs.items()|list)[0] %}
     <div id="album" class="row">
-        <img class="col-3 bg-img" src="/song/{{ album[0] }}/image">
+        <img class="col-3 bg-img" src="/image/{{ album[1].image }}">
         <div class="col-9 d-flex flex-column justify-content-center">
             <h1>{{ album[1].album }}</h1>
             <h2>{{ album[1].albumartist }}</h2>

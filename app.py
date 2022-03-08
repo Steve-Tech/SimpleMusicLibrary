@@ -9,7 +9,7 @@ from flask import Flask, render_template, request, Response, send_file, flash, r
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from sqlalchemy import func, desc, or_, and_
 from tinytag import TinyTag, TinyTagException
-from mmh3 import hash64
+from mmh3 import hash as hash32
 
 from database import *
 from forms import *
@@ -54,27 +54,19 @@ if settings['watchdog']:
                                 new_meta['album'] = meta.album or split(dirname(new_path))[1]
                                 new_meta['albumartist'] = meta.albumartist or split(dirname(dirname(new_path)))[1]
                                 new_meta['artist'] = meta.artist or split(dirname(dirname(new_path)))[1]
-                                new_meta['disc'] = meta.disc
                                 new_meta['genre'] = meta.genre or split(dirname(dirname(dirname(new_path))))[1]
-                                new_meta['track'] = meta.track
+                                new_meta['extra'] = json.dumps(meta.extra)
+
                                 img_hash = None
                                 if image := meta.get_image():
-                                    img_hash = hash64(image)[0]
+                                    img_hash = hash32(image)
                                     if not db.session.query(
                                             CoverImages.query.filter_by(hash=img_hash).exists()).scalar():
                                         db.session.add(CoverImages(hash=img_hash, image=image))
+
                                 db.session.add(
                                     Music(file=new_path,
-                                          title=new_meta['title'],
-                                          album=new_meta['album'],
-                                          album_artist=new_meta['albumartist'],
-                                          artist=new_meta['artist'],
-                                          disc=new_meta['disc'],
-                                          genre=new_meta['genre'],
-                                          track=new_meta['track'],
-                                          year=meta.year,
-                                          duration=meta.duration,
-                                          json=json.dumps(new_meta),
+                                          **new_meta,
                                           image=img_hash))
                                 db.session.commit()
 
@@ -121,8 +113,18 @@ if settings['watchdog']:
     observer.start()
 
 
+def dict_row(raw_row):
+    row = raw_row.__dict__
+    del row['_sa_instance_state']
+    return row
+
+
+def json_row(row):
+    return json.dumps(dict_row(row))
+
+
 def get_user_queue():
-    return {k: json.loads(v) for k, v in db.session.query(Music.id, Music.json)
+    return {k: dict_row(v) for k, v in db.session.query(Music.id, Music)
         .join(Queue, and_(Music.id == Queue.song, Queue.user == current_user.username))
         .order_by(Queue.index).all()}
 
@@ -223,7 +225,8 @@ def route_playlist():
             Playlists.query.filter_by(id=data["playlist"], user=current_user.username).exists()).scalar()) \
             or action == "new":
         if action == "get":
-            return Response(json.dumps(PlaylistSongs.query.filter_by(playlist=list_id).all()), mimetype="application/json")
+            return Response(json.dumps(PlaylistSongs.query.filter_by(playlist=list_id).all()),
+                            mimetype="application/json")
         elif action == "delete":
             PlaylistSongs.query.filter_by(playlist=list_id).delete()
             Playlists.query.filter_by(id=list_id, user=current_user.username).delete()
@@ -245,9 +248,9 @@ def route_playlist():
                 db.session.commit()
                 return '200' if num_rows else abort(400)
             elif action == "move":
-                for i in range(item[0], item[0]+item[1], inc := (1 if item[1] > 0 else -1)):
+                for i in range(item[0], item[0] + item[1], inc := (1 if item[1] > 0 else -1)):
                     old = PlaylistSongs.query.filter_by(index=i, playlist=list_id).scalar()
-                    new = PlaylistSongs.query.filter_by(index=i+inc, playlist=list_id).scalar()
+                    new = PlaylistSongs.query.filter_by(index=i + inc, playlist=list_id).scalar()
                     old.song, new.song = new.song, old.song
                     db.session.flush()
                 db.session.commit()
@@ -266,7 +269,8 @@ def route_playlist():
             return_var = []
             for item in items:
                 if action == "add":
-                    index = (db.session.query(func.max(PlaylistSongs.index)).filter_by(playlist=list_id).scalar() or 0) + 1
+                    index = (db.session.query(func.max(PlaylistSongs.index)).filter_by(
+                        playlist=list_id).scalar() or 0) + 1
                     new = PlaylistSongs(index=index, playlist=list_id, song=item)
                     db.session.add(new)
                     db.session.flush()
@@ -293,8 +297,12 @@ def route_playlist():
 def route_search():
     s_query = request.args.get("q")
     app.logger.debug("Search - '%s' = '%s'", current_user.username, s_query)
-    songs = {k: json.loads(v) for k, v in db.session.query(Music.id, Music.json).filter(
-        or_(Music.title.ilike(f"%{s_query}%"), Music.artist.ilike(f"%{s_query}%"))).all()} if s_query else {}
+    songs = {k: dict_row(v) for k, v in db.session.query(Music.id, Music).filter(
+        or_(Music.title.ilike(f"%{s_query}%"), Music.artist.ilike(f"%{s_query}%"),
+            Music.albumartist.ilike(f"%{s_query}%"), Music.composer.ilike(f"%{s_query}%"),
+            Music.comment.ilike(f"%{s_query}%"), Music.genre.ilike(f"%{s_query}%"),
+            Music.file.ilike(f"%{s_query}%"))).all()
+             } if s_query else {}
 
     user_queue = get_user_queue()
 
@@ -313,11 +321,11 @@ def route_logout():
 @app.route('/')
 @login_required
 def route_home():
-    top = {k: json.loads(v) for k, v in db.session.query(Music.id, Music.json)
+    top = {k: dict_row(v) for k, v in db.session.query(Music.id, Music)
         .join(History, and_(Music.id == History.song, History.user == current_user.username))
         .group_by(History.song).order_by(desc(func.count(History.song))).limit(10).all()}
 
-    last = {k: json.loads(v) for k, v in db.session.query(Music.id, Music.json).distinct(History.song)
+    last = {k: dict_row(v) for k, v in db.session.query(Music.id, Music).distinct(History.song)
         .join(History, and_(Music.id == History.song, History.user == current_user.username))
         .order_by(desc(History.date)).limit(10).all()}
 
@@ -339,11 +347,12 @@ def route_playlists(playlist_id: int):
     user_queue = get_user_queue()
 
     if playlist := Playlists.query.filter_by(id=playlist_id, user=current_user.username).scalar():
-        playlist_songs = {k: json.loads(v) for k, v in db.session.query(Music.id, Music.json)
+        playlist_songs = {k: dict_row(v) for k, v in db.session.query(Music.id, Music)
             .join(PlaylistSongs, and_(PlaylistSongs.playlist == playlist_id, Music.id == PlaylistSongs.song))
             .order_by(PlaylistSongs.index).all()}
 
-        playlist_list = db.session.query(PlaylistSongs.song).filter_by(playlist=playlist_id).order_by(PlaylistSongs.index).all()
+        playlist_list = db.session.query(PlaylistSongs.song).filter_by(playlist=playlist_id).order_by(
+            PlaylistSongs.index).all()
 
         return render_template("playlist.html", title=playlist.name, playlist=playlist,
                                playlist_songs=playlist_songs, playlist_list=playlist_list,
@@ -357,8 +366,8 @@ def route_albums():
     user_queue = get_user_queue()
 
     return render_template("albums.html", title="Albums", theme=request.args.get("theme") or current_user.theme,
-                           albums={k: json.loads(v) for k, v in
-                                   db.session.query(Music.id, Music.json).group_by(Music.album).order_by(Music.album)},
+                           albums={k: dict_row(v) for k, v in
+                                   db.session.query(Music.id, Music).group_by(Music.album).order_by(Music.album)},
                            songs=user_queue, queue=list(user_queue.keys()))
 
 
@@ -367,7 +376,7 @@ def route_albums():
 def route_album(song_id: int):
     user_queue = get_user_queue()
 
-    album_songs = {k: json.loads(v) for k, v in db.session.query(Music.id, Music.json)
+    album_songs = {k: dict_row(v) for k, v in db.session.query(Music.id, Music)
         .filter(
         Music.album == (db.session.query(Music.album).filter_by(id=song_id).scalar_subquery()))
         .order_by(Music.disc, func.length(Music.track), Music.track)}
@@ -382,8 +391,8 @@ def route_artists():
     user_queue = get_user_queue()
 
     return render_template("artists.html", title="Artists", theme=request.args.get("theme") or current_user.theme,
-                           artists={k: json.loads(v) for k, v in
-                                    db.session.query(Music.id, Music.json).group_by(Music.artist)
+                           artists={k: dict_row(v) for k, v in
+                                    db.session.query(Music.id, Music).group_by(Music.artist)
                            .order_by(Music.artist)},
                            songs=user_queue, queue=list(user_queue.keys()))
 
@@ -393,15 +402,15 @@ def route_artists():
 def route_artist(song_id: int):
     user_queue = get_user_queue()
 
-    query = db.session.query(Music.id, Music.json) \
+    query = db.session.query(Music.id, Music) \
         .filter(Music.artist == (db.session.query(Music.artist).filter_by(id=song_id).scalar_subquery()))
 
-    artist_songs = {k: json.loads(v) for k, v in
+    artist_songs = {k: dict_row(v) for k, v in
                     query.order_by(Music.album, Music.disc, func.length(Music.track),
                                    Music.track)}
 
     return render_template("artist.html", title=list(artist_songs.values())[0]['artist'],
-                           albums={k: json.loads(v) for k, v in query.group_by(Music.album).order_by(Music.album)},
+                           albums={k: dict_row(v) for k, v in query.group_by(Music.album).order_by(Music.album)},
                            songs=artist_songs | user_queue, artist=artist_songs, queue=list(user_queue.keys()))
 
 
@@ -410,7 +419,7 @@ def route_artist(song_id: int):
 @login_required
 def route_song(song_id: int, action=None):
     if action == "meta":
-        return Response(db.session.query(Music.json).filter_by(id=song_id).scalar(), mimetype="application/json")
+        return Response(json_row(Music.query.get(song_id)), mimetype="application/json")
     elif action == "image":
         if image := db.session.query(CoverImages.image).join(Music, Music.image == CoverImages.hash).filter_by(
                 id=song_id).scalar():
@@ -425,6 +434,16 @@ def route_song(song_id: int, action=None):
         return Response(str(listen.id), mimetype="application/json")
     else:
         return send_file(db.session.query(Music.file).filter_by(id=song_id).scalar())
+
+
+@app.route('/image/<image_hash>')
+@login_required
+def route_image(image_hash):
+    if image := db.session.query(CoverImages.image).filter_by(hash=image_hash).scalar():
+        # mime = imghdr.what(image, h=image[:32])
+        mime = imghdr.what(None, h=image[:32])
+        return Response(image, mimetype="image/" + (mime or "unknown"))
+    return send_file("static/img/blank.svg")
 
 
 if __name__ == '__main__':

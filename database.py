@@ -4,6 +4,11 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 
+class Meta(db.Model):
+    key = db.Column(db.String, primary_key=True)
+    value = db.Column(db.String)
+
+
 class Users(UserMixin, db.Model):
     username = db.Column(db.String, primary_key=True)
     password = db.Column(db.String, nullable=False)
@@ -19,14 +24,23 @@ class Music(db.Model):
     file = db.Column(db.String, unique=True, nullable=False)
     title = db.Column(db.String)
     album = db.Column(db.String)
-    album_artist = db.Column(db.String)
+    albumartist = db.Column(db.String)
     artist = db.Column(db.String)
+    audio_offset = db.Column(db.Integer)
+    bitrate = db.Column(db.Float)
+    channels = db.Column(db.Integer)
+    comment = db.Column(db.String)
+    composer = db.Column(db.String)
     disc = db.Column(db.String)
-    genre = db.Column(db.String)
-    track = db.Column(db.String)
-    year = db.Column(db.String)
+    disc_total = db.Column(db.String)
     duration = db.Column(db.Float)
-    json = db.Column(db.String)
+    extra = db.Column(db.String)
+    filesize = db.Column(db.Integer)
+    genre = db.Column(db.String)
+    samplerate = db.Column(db.Integer)
+    track = db.Column(db.String)
+    track_total = db.Column(db.String)
+    year = db.Column(db.String)
     image = db.Column(db.Integer, db.ForeignKey("cover_images.hash"))
 
 

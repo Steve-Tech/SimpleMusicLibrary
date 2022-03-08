@@ -71,6 +71,18 @@
     cursor: pointer;
 }
 
+/*
+#slider {
+    --buffered: 0%;
+}
+#slider::-webkit-slider-runnable-track {
+    background: linear-gradient(to right, rgba(var(--bs-secondary-rgb), 0.6) 0%, rgba(var(--bs-secondary-rgb), 0.6) var(--buffered), var(--bs-secondary) var(--buffered), var(--bs-secondary) 100%);
+}
+#slider::-moz-range-track {
+    background: linear-gradient(to right, rgba(var(--bs-secondary-rgb), 0.6) 0%, rgba(var(--bs-secondary-rgb), 0.6) var(--buffered), var(--bs-secondary) var(--buffered), var(--bs-secondary) 100%);
+}
+*/
+
 @media screen and (min-width: 576px) {
     .bg-img {
         min-width: 160px;
