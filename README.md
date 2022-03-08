@@ -6,7 +6,7 @@ A Simple Bootstrap Music Library
 - Python 3.9+
   - This could be fairly easy to port to an older version
 - A WSGI Server
-  - eg. Gunicorn or uWSGI
+  - e.g. Gunicorn or uWSGI
 
 ### Music
 - The folder structure should be `$genre$/$artist$/$album$/`
@@ -44,4 +44,4 @@ A Simple Bootstrap Music Library
   - `Drop All Music Tables? [y/N]: ` - Reset all data except userdata, only needed for reinstall
   - `Create Users? [y/N]: ` - Create users from settings, does no harm if users exist
   - `Search Library for Songs? [y/N]: ` - Delete deleted songs and add new songs to the database
-- Run `app.py` with your WSGI server
+- Run `app.py` with your WSGI server, e.g. `gunicorn app:app -b 0.0.0.0:8000 --threads 4` for gunicorn

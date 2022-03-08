@@ -39,7 +39,7 @@ class Player {
                 let playbackRate = this.audio.playbackRate;
                 let currentTime = this.audio.currentTime;
                 slider.value = currentTime;
-                if (( duration || duration === 0) && playbackRate && currentTime) {
+                if ((duration || duration === 0) && playbackRate && currentTime) {
                     navigator.mediaSession.setPositionState({
                         duration: duration,
                         playbackRate: playbackRate,
@@ -273,20 +273,20 @@ let current_time = elem_id("current_time");
 let max_time = elem_id("max_time");
 
 
-slider.addEventListener("mousedown", () => {
-    if (!player.paused)
+slider.addEventListener("mousedown", (e) => {
+    if (queue.current && e.button === 0 && !player.paused)
         player.pause(true);
 });
 slider.addEventListener("touchstart", () => {
-    if (!player.paused)
+    if (queue.current && !player.paused)
         player.pause(true);
 });
-slider.addEventListener("mouseup", () => {
-    if (player.paused)
+slider.addEventListener("mouseup", (e) => {
+    if (queue.current && e.button === 0 && player.paused)
         player.play(true);
 });
 slider.addEventListener("touchend", () => {
-    if (player.paused)
+    if (queue.current && player.paused)
         player.play(true);
 });
 
