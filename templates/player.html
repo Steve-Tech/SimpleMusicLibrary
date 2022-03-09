@@ -28,8 +28,7 @@
                 </button>
             </div>
             <div class="col-4 d-none d-sm-flex align-items-center">
-                <span role="button" id="queue" class="btn-player bi bi-music-note-list" data-bs-toggle="modal"
-                      data-bs-target="#queueModal"></span>
+                <span role="button" id="queue" class="btn-player bi bi-music-note-list"></span>
                 <label id="mute" for="volume" aria-label="Volume" class="btn-player bi bi-volume-up-fill"></label>
                 <input id="volume" type="range" class="form-range" min="0" max="1" value="1" step="0.01" title="100%">
             </div>
@@ -70,42 +69,12 @@
         </div>
     </div>
 
-
-    <div class="modal fade" id="queueModal" tabindex="-1" aria-labelledby="queueModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-fullscreen-lg-down modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="queueModalLabel">Your Queue</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <table class="table">
-                        <thead>
-                        <tr>
-                            <th scope="col">#&emsp;</th>
-                            {# &emsp; is used for an em width space to stop the play button jiggling #}
-                            <th scope="col">Title</th>
-                            <th scope="col">Album</th>
-                            <th scope="col">Artist</th>
-                            <th scope="col">Date</th>
-                            <th scope="col">Duration</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="modal-footer justify-content-between">
-                <span class="text-muted">
-
-                </span>
-                    <div>
-                        <button type="button" class="btn btn-secondary" onclick="queue.clear()">Clear
-                        </button>
-                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Done</button>
-                    </div>
-                </div>
+    <noscript>
+        <div class="toast fixed-bottom start-50 translate-middle-x show" role="alert" aria-live="assertive"
+             aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">Error: Javascript is required</div>
             </div>
         </div>
-    </div>
+    </noscript>
 {% endif %}

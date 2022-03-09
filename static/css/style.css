@@ -84,8 +84,26 @@
     transition: opacity 0.1s;
 }
 
+#container {
+	animation: fadeIn 0.25s;
+  	opacity: 1;
+}
+
+@keyframes fadeIn {
+  from {
+  	opacity: 0;
+  }
+  to {
+ 	opacity: 1;
+  }
+}
+
 [data-page] {
     cursor: pointer;
+}
+
+img:not(.no-fit) {
+    object-fit: contain;
 }
 
 /*

@@ -26,6 +26,16 @@ function format_time(time) {
 
 function page(url, push = true) {
     if (push) window.history.pushState({"page": url}, "Loading - SimpleMusicLibrary", url);
+    queue_button.classList.remove("text-info")
+    if (page_cache['url'] === url) {
+        console.log(page_cache)
+        document.title = page_cache['title'];
+        elem_id("container").replaceWith(page_cache['container']);
+        elem_id("navbar").replaceWith(page_cache['navbar']);
+        page_cache = {}
+        setupPage();
+        return
+    }
     document.title = "Loading - SimpleMusicLibrary";
     elem_id("loading").classList.remove("opacity-0");
     let xhr = new XMLHttpRequest();
@@ -96,7 +106,9 @@ class Drag {
             } else {
                 e.target.closest("tr").before(this.row);
             }
-            setTimeout(() => {this.ready = true}, 50);
+            setTimeout(() => {
+                this.ready = true
+            }, 50);
             this.ready = false;
         }
     }
@@ -200,10 +212,14 @@ menus.build("queue",
         "Play Now": () => player.start(queue.array[menus.selected]),
         "Play Next": () => queue.unshift(queue.array[menus.selected]),
         "Remove from Queue": () => queue.splice(menus.selected, 1),
-        "Go to Album": () => page('/albums/' + menus.selected),
-        "Go to Artist": () => page('/artists/' + menus.selected)
+        "Go to Album": () => page('/albums/' + queue.array[menus.selected]),
+        "Go to Artist": () => page('/artists/' + queue.array[menus.selected])
     }
 )
+
+elem_id("theme").addEventListener("change", (e) =>
+    elem_id("bootstrap").setAttribute("href", "static/css/" +
+            (e.target.value === "Default" ? "bootstrap.min.css" : `themes/${e.target.value}.css`)))
 
 window.history.replaceState({"page": window.location.pathname}, document.title);
 setupPage();

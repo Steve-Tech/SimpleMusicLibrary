@@ -1,9 +1,11 @@
 {% extends 'html.html' %}
 {% block layout %}
     {% include 'navbar.html' %}
-    <div class="sticky-top float-start opacity-0" id="loading">
-        <div class="spinner-border m-1" role="status">
-            <span class="visually-hidden">Loading...</span>
+    <div class="position-absolute opacity-0" id="loading">
+        <div class="sticky-top">
+            <div class="spinner-border m-1" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
         </div>
     </div>
     <main class="container mt-sm-3 mt-lg-4 pb-container" id="container">
@@ -94,6 +96,7 @@
     <script src="{{ url_for('static', filename='js/helpers.js') }}"></script>
     <script src="{{ url_for('static', filename='js/playlist.js') }}"></script>
     <script src="{{ url_for('static', filename='js/queue.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bigplayer.js') }}"></script>
     <script src="{{ url_for('static', filename='js/player.js') }}"></script>
 
 {% endblock %}

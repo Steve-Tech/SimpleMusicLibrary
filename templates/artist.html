@@ -25,8 +25,8 @@
             <th scope="col">Title</th>
             <th scope="col">Album</th>
             <th scope="col">Artist</th>
-            <th scope="col">Date</th>
-            <th scope="col">Duration</th>
+            <th class="d-none d-sm-table-cell" scope="col">Date</th>
+            <th class="d-none d-sm-table-cell" scope="col">Duration</th>
         </tr>
         </thead>
         <tbody>
@@ -34,13 +34,13 @@
         {% for id, song in artist.items() %}
             <tr role="button" data-id="{{ id }}" onclick="queue.add_all({{ id }})"
                 oncontextmenu="menus.open(event, 'song', {{ id }})"
-                title="{{ ((song.filesize/1048576)|round(1)|string + "MB") if song.filesize }}, {{ ((song.samplerate/1000)|string + "KHz") if song.samplerate }}, {{ (song.bitrate|round(1)|string + "kbps") if song.bitrate }}">
+                title="{{ song.file.rpartition('.')[2] | upper }}, {{ (((song.filesize/1048576)|round(1)|string + "MB, ") if song.filesize else "") + (((song.samplerate/1000)|string + "KHz, ") if song.samplerate else "") + ((song.bitrate|round(1)|string + "kbps") if song.bitrate else "") }}">
                 <th scope="row" class="w-play">{{ song.track  or '' }}</th>
                 <td>{{ song.title }}</td>
                 <td>{{ song.album  or '' }}</td>
                 <td>{{ song.artist  or '' }}</td>
-                <td>{{ song.year  or '' }}</td>
-                <td>{{ song.duration | format_time }}</td>
+                <td class="d-none d-sm-table-cell">{{ song.year  or '' }}</td>
+                <td class="d-none d-sm-table-cell">{{ song.duration | format_time }}</td>
             </tr>
         {% endfor %}
         </tbody>

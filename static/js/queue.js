@@ -1,6 +1,5 @@
 "use strict";
 let queue_button = elem_id("queue");
-let queue_modal = elem_id('queueModal');
 
 class Queue {
     current = null;
@@ -137,7 +136,7 @@ class Queue {
     }
 
     update() {
-        if (bootstrap.Modal.getInstance(queue_modal)?._isShown) update_modal()
+        update_big_player()
         let xhr = new XMLHttpRequest();
         xhr.open("POST", '/queue', true);
         xhr.setRequestHeader('Content-Type', 'application/json');

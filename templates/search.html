@@ -18,7 +18,7 @@
 
         {% for id, song in results.items() %}
             <tr role="button" data-id="{{ id }}" onclick="queue.add_all({{ id }})" oncontextmenu="menus.open(event, 'song', {{ id }})"
-                title="{{ (song.filesize/1048576)|round(1) }}MB, {{ song.samplerate/1000 }}KHz, {{ song.bitrate|round(1) }}kbps">
+                title="{{ song.file.rpartition('.')[2] | upper }}, {{ (((song.filesize/1048576)|round(1)|string + "MB, ") if song.filesize else "") + (((song.samplerate/1000)|string + "KHz, ") if song.samplerate else "") + ((song.bitrate|round(1)|string + "kbps") if song.bitrate else "") }}">
                 <th scope="row">{{ song.track }}</th>
                 <td>{{ song.title }}</td>
                 <td>{{ song.album }}</td>

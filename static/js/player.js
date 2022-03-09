@@ -54,9 +54,6 @@ class Player {
                 // slider.style.setProperty("--buffered", `${(this.audio.buffered.end(player.audio.buffered.length-1) / duration)*100}%`)
 
             }, 50);
-
-
-            if (bootstrap.Modal.getInstance(queue_modal)?._isShown) update_modal();
         });
 
         this.audio.addEventListener("pause", () => {
@@ -246,13 +243,14 @@ class Player {
             song_image.src = `/image/${song.image}`;
             song_title.innerText = song.title;
             song_artist.innerText = song.artist;
-            song_info.title = `${(song.filesize / 1048576).toFixed(1)}MB, ${song.samplerate / 1000}KHz, ${song.bitrate.toFixed(1)}kbps`;
+            song_info.title = `${song.file.split('.').pop().toUpperCase()}, ${(song.filesize / 1048576).toFixed(1)}MB, ${song.samplerate / 1000}KHz, ${song.bitrate.toFixed(1)}kbps`;
             song_info.classList.remove("invisible");
             if (time) {
                 slider.max = song.duration;
                 max_time.innerText = format_time(song.duration);
             }
         }
+        update_big_player();
     }
 }
 
@@ -299,6 +297,13 @@ slider.addEventListener("input", (e) => {
             playbackRate: this.audio.playbackRate,
             position: this.audio.currentTime
         });
+});
+
+queue_button.addEventListener("click", () => {
+    if (window.location.hash !== "#queue")
+        open_big_player();
+    else
+        window.history.back();
 });
 
 volume.addEventListener("change", (e) => {
@@ -354,52 +359,23 @@ forward_button.addEventListener("click", () => {
 });
 back_button.addEventListener("click", () => player.start(queue.play_prev(), false));
 
-queue_modal.addEventListener('show.bs.modal', update_modal);
-
 window.addEventListener('popstate', (e) => {
-    if ("page" in e.state) page(e.state.page, false);
+    if (window.location.hash === "#queue") open_big_player(false);
+    else if ("page" in e.state) page(e.state.page, false);
 });
 
 
 let drag = new Drag();
-
-function update_modal() {
-    let modal_content = queue_modal.getElementsByClassName("modal-body")[0];
-    let table = modal_content.querySelector("table > tbody");
-    while (table.firstChild) {
-        table.removeChild(table.lastChild);
-    }
-
-    for (let [index, song_id] of queue.array.entries()) {
-        let song = songs[song_id];
-        let tr = document.createElement("tr");
-        for (let metaKey of ["track", "title", "album", "artist", "year"]) {
-            let td = document.createElement("td");
-            td.innerText = song[metaKey];
-            tr.appendChild(td);
-        }
-        let td = document.createElement("td");
-        td.innerText = format_time(song['duration']);
-        tr.appendChild(td);
-        tr.setAttribute("draggable", "true");
-        tr.addEventListener('click', () => player.play(song_id));
-        tr.addEventListener('contextmenu', (e) => menus.open(e, "queue", index));
-        tr.addEventListener('dragstart', (e) => drag.start(e));
-        tr.addEventListener('dragover', (e) => drag.over(e));
-        tr.addEventListener('dragend', (e) => drag.update_queue(e));
-        tr.setAttribute('role', 'button');
-        table.appendChild(tr);
-    }
-
-    queue_modal.querySelector("div.modal-footer > span").innerText = `${queue.length} Items`;
-    updateTables(table);
-}
 
 function load() {
     let new_volume = localStorage.getItem('volume') || 1;
     player.set_volume = new_volume;
     volume.value = new_volume;
     volume.title = Math.round(new_volume * 100) + '%';
+    if (window.location.hash === "#queue"){
+        window.history.replaceState(window.history.state, null, window.location.pathname);
+        open_big_player();
+    }
     player.display(queue.next);
 }
 
