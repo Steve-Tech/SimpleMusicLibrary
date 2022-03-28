@@ -1,10 +1,12 @@
 {% extends 'layout.html' %}
 {% block content %}
-    <h1>{{ (albums.values()|list)[0].artist }}</h1>
+    <h1 class="mb-0">{{ (albums.values()|list)[0].artist }}</h1>
+    <a class="d-inline-block mb-1" href="https://en.wikipedia.org/wiki/Special:Search?search={{ (albums.values()|list)[0].artist | urlencode }}&go=Go">Search Wikipedia</a>
     <h5>Albums</h5>
     <div class="row d-flex justify-content-around">
         {% for id, song in albums.items() %}
             <div class="card bg-secondary col-2 m-1 p-0 hover bg-img" role="button"
+                 oncontextmenu="menus.open(event, 'album', {{ id }})"
                  data-page="/albums/{{ id }}" data-id="{{ id }}">
                 <img class="card-img my-auto" src="/image/{{ song.image }}" alt="Card image" loading="lazy">
                 <div class="card-img-overlay text-center p-0 d-flex align-content-between flex-column">

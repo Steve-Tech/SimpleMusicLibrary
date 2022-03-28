@@ -42,6 +42,7 @@ if settings['watchdog']:
     class WatchdogHandler(FileSystemEventHandler):
         @staticmethod
         def create(new_path):
+            """Create a song in the database from a file path"""
             if not any(split(new_path)[1].startswith(item) for item in settings["ignore_prefix"]):
                 with app.app_context():
                     if not db.session.query(Music.query.filter_by(file=new_path).exists()).scalar():
@@ -74,6 +75,9 @@ if settings['watchdog']:
                             app.logger.warning(e)
 
                         except FileNotFoundError as e:
+                            app.logger.warning(e)
+
+                        except TypeError as e:
                             app.logger.warning(e)
 
         def on_created(self, event):
@@ -114,27 +118,32 @@ if settings['watchdog']:
 
 
 def dict_row(raw_row):
+    """Convert SQL music row to dict"""
     row = raw_row.__dict__
     del row['_sa_instance_state']
     return row
 
 
 def json_row(row):
+    """Convert SQL music row to json"""
     return json.dumps(dict_row(row))
 
 
 def get_user_queue():
+    """Get the current user's queue"""
     return {k: dict_row(v) for k, v in db.session.query(Music.id, Music)
         .join(Queue, and_(Music.id == Queue.song, Queue.user == current_user.username))
         .order_by(Queue.index).all()}
 
 
 def get_user_playlists():
+    """Get the current user's playlists"""
     return db.session.query(Playlists.id, Playlists.name).filter_by(user=current_user.username).all()
 
 
 @app.context_processor
 def inject_vars():
+    """Inject vars into Jinja"""
     if current_user.is_authenticated:
         return dict(
             theme=request.args.get("theme") or current_user.theme,
@@ -142,11 +151,12 @@ def inject_vars():
             playlists=get_user_playlists(),
             # queue=list(user_queue().keys())
         )
-    return []
+    return {}
 
 
 @app.template_filter()
 def format_time(time):
+    """Formats time from seconds into h:mm:ss"""
     if time is None:
         return time
     mins, secs = divmod(time, 60)

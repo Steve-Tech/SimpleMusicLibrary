@@ -9,7 +9,7 @@
         </div>
         <div class="row col-12 col-lg-6">
             <div class="col-4">
-                <div class="d-none d-sm-flex align-items-center invisible" id="info">
+                <div class="d-none d-sm-flex align-items-center invisible" id="info" oncontextmenu="menus.open(event, 'playing', queue.current || queue.next)">
                     <img id="image" class="bg-img" src="" alt="Album Cover">
                     <div class="d-flex flex-column ms-1">
                         <span id="title"></span>

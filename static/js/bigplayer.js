@@ -28,8 +28,14 @@ function open_big_player(push = true) {
         elements.h2 = document.createElement("h2");
         elements.h2.innerText = song.title;
 
+        elements.h3a = document.createElement("a");
+        elements.h3a.innerText = song.artist;
+        elements.h3a.title = "Go to Artist";
+        elements.h3a.classList.add("text-decoration-none");
+        elements.h3a.setAttribute("role", "button");
+        elements.h3a.addEventListener('click', () => page('/artists/' + song.id));
         elements.h3 = document.createElement("h3");
-        elements.h3.innerText = song.artist;
+        elements.h3.appendChild(elements.h3a)
 
         elements.div1 = document.createElement("div");
         elements.div1.classList.add("d-flex", "flex-column", "justify-content-center");
@@ -38,10 +44,14 @@ function open_big_player(push = true) {
         elements.img = document.createElement("img");
         elements.img.classList.add("col-4", "col-md-3", "col-lg-2", "px-0", "me-1", "bg-img");
         elements.img.src = `/image/${song.image}`;
+        elements.img.title = "Go to Album";
+        elements.img.setAttribute("role", "button");
+        elements.img.addEventListener('click', () => page('/albums/' + song.id));
 
         elements.div0 = document.createElement("div");
         elements.div0.classList.add("d-flex", "flex-row");
         elements.div0.append(elements.img, elements.div1)
+        elements.div0.addEventListener('contextmenu', (e) => menus.open(e, 'playing', queue.current || queue.next));
 
         elements.h5a = document.createElement("h5");
         elements.h5a.innerText = "Currently Playing:";

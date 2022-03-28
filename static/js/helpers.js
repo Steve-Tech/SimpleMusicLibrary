@@ -1,4 +1,6 @@
 "use strict";
+
+// Shorthand document.getElementById()
 const elem_id = (elem) => document.getElementById(elem);
 // const elems_class = (elem) => document.getElementsByClassName(elem);
 // const elem_query = (elem) => document.querySelector(elem);
@@ -12,6 +14,7 @@ function show_toast(message) {
     bs_toast.show();
 }
 
+// Formats time from seconds into h:mm:ss
 function format_time(time) {
     let secs = Math.floor(time % 60);
     if (time > 3600) {
@@ -24,6 +27,7 @@ function format_time(time) {
     }
 }
 
+// Go to a page without reloading and stopping the playing song
 function page(url, push = true) {
     if (push) window.history.pushState({"page": url}, "Loading - SimpleMusicLibrary", url);
     queue_button.classList.remove("text-info")
@@ -55,6 +59,7 @@ function page(url, push = true) {
     xhr.send();
 }
 
+// Setup function for new page load
 function setupPage() {
     document.querySelectorAll("[data-page]").forEach((element) => {
         const data_page = () => page(element.getAttribute("data-page"));
@@ -65,6 +70,7 @@ function setupPage() {
     load_search();
 }
 
+// Update event listeners for tables
 function updateTables(base_element = document.body) {
     base_element.querySelectorAll("table.table > tbody > tr").forEach((element) => {
         let text = element.children[0].innerText;
@@ -79,6 +85,7 @@ function updateTables(base_element = document.body) {
     });
 }
 
+// Get all songs on a page
 function get_all() {
     let ids = [];
     document.querySelectorAll("table.table > tbody > tr[data-id]").forEach((element) => {
@@ -87,6 +94,7 @@ function get_all() {
     return ids;
 }
 
+// Handles dragging of songs in a table
 class Drag {
     row;
     original_index;
@@ -122,6 +130,7 @@ class Drag {
     }
 }
 
+// Handles context menus
 class Menus {
     menus = {};
     selected;
@@ -136,7 +145,7 @@ class Menus {
         });
     }
 
-
+    // Build a menu to be cached for showing
     build(name, items) {
         let ul = document.createElement("ul");
         ul.id = `${name}_menu`;
@@ -161,21 +170,27 @@ class Menus {
         this.menus[name] = ul;
     }
 
+    // Open a built menu
     open(e, name, id) {
+        // Let browser menu show if any modifier keys are pressed
         if (!(e.altKey || e.ctrlKey || e.metaKey || e.shiftKey))
             e.preventDefault();
         this.selected = id;
         this.elem = e.target;
         let menu = this.menus[name];
-        menu.style.top = e.pageY + "px";
-        menu.style.left = e.pageX + "px";
-        menu.classList.add("show");
+        menu.classList.add("show", "invisible"); // Show but invisible to get the height & width of the menu
+        // Move menu if in lower quarter of the screen or right most eighth
+        menu.style.top = (e.clientY > window.innerHeight / 1.5 ? e.pageY - menu.offsetHeight : e.pageY) + "px";
+        menu.style.left = (e.clientX > window.innerWidth / 1.25 ? e.pageX - menu.offsetWidth : e.pageX) + "px";
+        menu.classList.remove("invisible"); // Finally show
     }
 
+    // Close a certain menu
     close(name) {
         this.menus[name].classList.remove("show");
     }
 
+    // Close All Menus
     close_all() {
         Object.values(this.menus).forEach(e => e.classList.remove("show"));
     }
@@ -214,6 +229,20 @@ menus.build("queue",
         "Remove from Queue": () => queue.splice(menus.selected, 1),
         "Go to Album": () => page('/albums/' + queue.array[menus.selected]),
         "Go to Artist": () => page('/artists/' + queue.array[menus.selected])
+    }
+)
+menus.build("album",
+    {
+        "Go to Album": () => page('/albums/' + menus.selected),
+        "Go to Artist": () => page('/artists/' + menus.selected)
+    }
+)
+menus.build("playing",
+    {
+        "Play Next": () => queue.unshift(menus.selected),
+        "Re-add to Queue": () => queue.add(menus.selected),
+        "Go to Album": () => page('/albums/' + menus.selected),
+        "Go to Artist": () => page('/artists/' + menus.selected)
     }
 )
 

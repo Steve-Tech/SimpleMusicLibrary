@@ -135,6 +135,7 @@ class Queue {
         return val;
     }
 
+    // Update queue on server and displayed in queue screen
     update() {
         update_big_player()
         let xhr = new XMLHttpRequest();

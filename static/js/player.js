@@ -113,6 +113,7 @@ class Player {
         this.audio.volume = vol;
     }
 
+    // Play a song setting up the queue
     start(id = queue.next, push = true) {
         if (!this.audio.paused)
             this.audio.pause();
@@ -201,6 +202,7 @@ class Player {
         }
     }
 
+    // Toggle play & pause
     toggle() {
         if (queue.current == null) this.start();
         else this.audio.paused ? this.play() : this.pause();
@@ -231,7 +233,7 @@ class Player {
         }
     }
 
-
+    // Update the currently playing display
     display(id = queue.current, time = true) {
         const song_info = elem_id("info");
         const song_image = elem_id("image");
