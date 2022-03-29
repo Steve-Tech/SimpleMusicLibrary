@@ -6,7 +6,7 @@
     {
       "src": "/static/img/unknown.svg",
       "type": "image/svg+xml",
-      "sizes": "512x512"
+      "sizes": "150x150"
     }
   ],
   "start_url": "/",
