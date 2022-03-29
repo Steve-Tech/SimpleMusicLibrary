@@ -20,6 +20,7 @@ def main():
     app.settings['users'] = ["guest"]
     app.settings['library'] = "demo/songs"
     db.create_all()
+    setup.download()
     setup.users()
     setup.scan()
 
