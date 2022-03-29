@@ -1,6 +1,10 @@
 # SimpleMusicLibrary
 A Simple Bootstrap Music Library
 
+Public Demo: [sml-demo.stevetech.au](https://sml-demo.stevetech.au)
+
+The demo uses Cloudflare Pages & Workers for a server-less infrastructure, it may not be consistent with the actual project. See `demo` branch.
+
 ## Installation
 ### Requirements
 - Python 3.9+
