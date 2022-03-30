@@ -13,9 +13,8 @@ def auto_login():
 
 
 def main():
-    for d in ["demo/songs", "demo/images", "demo/albums", "demo/artists"]:
+    for d in ["demo/songs", "demo/image", "demo/albums", "demo/artists"]:
         makedirs(d, exist_ok=True)
-    chdir("demo")
 
     app.settings['users'] = ["guest"]
     app.settings['library'] = "demo/songs"
@@ -24,16 +23,21 @@ def main():
     setup.users()
     setup.scan()
 
+    chdir("demo")
+
     with app.app.test_client() as client:
         open("login.html", 'wb').write(client.get('/login').data)
         assert client.get('/auto_login').status_code == 204, "Failed to login"
         open("index.html", 'wb').write(client.get('/').data)
         open("albums/index.html", 'wb').write(client.get('/albums').data)
         for i, in db.session.query(Music.id).group_by(Music.album).order_by(Music.album):
-            open(f"albums/{i}.html", 'wb').write(client.get(f'/albums/{i}').data)
+            print(f"albums/{i}/index.html")
+            makedirs(f"albums/{i}", exist_ok=True)
+            open(f"albums/{i}/index.html", 'wb').write(client.get(f'/albums/{i}').data)
         open("artists/index.html", 'wb').write(client.get('/artists').data)
         for i, in db.session.query(Music.id).group_by(Music.artist).order_by(Music.artist):
-            open(f"artists/{i}.html", 'wb').write(client.get(f'/artists/{i}').data)
+            makedirs(f"artists/{i}", exist_ok=True)
+            open(f"artists/{i}/index.html", 'wb').write(client.get(f'/artists/{i}').data)
 
     shutil.copytree("../static", "static", dirs_exist_ok=True)
 
