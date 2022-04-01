@@ -42,9 +42,10 @@ class Playlists {
     }
 
     // Delete a playlist
-    delete(playlist) {
+    delete(playlist, on_success = null) {
         this.send("delete", {"playlist": playlist}, () => {
             document.querySelectorAll(`.playlists [data-id="${playlist}"]`).forEach((e) => e.remove());
+            on_success()
         });
     }
 

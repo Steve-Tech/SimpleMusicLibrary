@@ -33,7 +33,7 @@ function open_big_player(push = true) {
         elements.h3a.title = "Go to Artist";
         elements.h3a.classList.add("text-decoration-none");
         elements.h3a.setAttribute("role", "button");
-        elements.h3a.addEventListener('click', () => page('/artists/' + song.id));
+        elements.h3a.addEventListener('click', (e) => clickPage(e, '/artists/' + song.id));
         elements.h3 = document.createElement("h3");
         elements.h3.appendChild(elements.h3a)
 
@@ -46,7 +46,7 @@ function open_big_player(push = true) {
         elements.img.src = `/image/${song.image}`;
         elements.img.title = "Go to Album";
         elements.img.setAttribute("role", "button");
-        elements.img.addEventListener('click', () => page('/albums/' + song.id));
+        elements.img.addEventListener('click', (e) => clickPage(e, '/albums/' + song.id));
 
         elements.div0 = document.createElement("div");
         elements.div0.classList.add("d-flex", "flex-row");

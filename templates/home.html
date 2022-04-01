@@ -61,7 +61,7 @@
             <tbody>
 
             {% for playlist in playlists %}
-                <tr role="button" data-id="{{ playlist[0] }}" onclick="page('/playlists/{{ playlist[0] }}')">
+                <tr role="button" data-id="{{ playlist[0] }}" data-page="/playlists/{{ playlist[0] }}">
                     <th scope="row" class="w-play"></th>
                     <td>{{ playlist[1] or "Playlist" }}</td>
                     <td>{{ playlist[2] }}</td>
