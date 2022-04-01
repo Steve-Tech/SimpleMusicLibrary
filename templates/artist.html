@@ -1,7 +1,8 @@
 {% extends 'layout.html' %}
 {% block content %}
     <h1 class="mb-0">{{ (albums.values()|list)[0].artist }}</h1>
-    <a class="d-inline-block mb-1" href="https://en.wikipedia.org/wiki/Special:Search?search={{ (albums.values()|list)[0].artist | urlencode }}&go=Go">Search Wikipedia</a>
+    <a class="d-inline-block mb-1" href="https://en.wikipedia.org/wiki/Special:Search?search={{ (albums.values()|list)[0].artist | urlencode }}&go=Go"
+       target="_blank">Search Wikipedia</a>
     <h5>Albums</h5>
     <div class="row d-flex justify-content-around">
         {% for id, song in albums.items() %}

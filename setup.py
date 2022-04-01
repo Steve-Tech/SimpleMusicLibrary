@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import json
 from hashlib import blake2b
-from os.path import dirname, join, split, exists
+from os.path import dirname, join, split, exists, splitext
 from os import walk, makedirs
 from sys import argv
 
@@ -212,12 +212,16 @@ def scan():
                     meta = TinyTag.get(path, image=True)
                     # print("Adding: ", meta)
                     new_meta = meta.as_dict()
-                    new_meta['title'] = meta.title or filename
+                    new_meta['title'] = meta.title or splitext(filename)[0]
                     new_meta['album'] = meta.album or split(dirname(path))[1]
                     new_meta['albumartist'] = meta.albumartist or split(dirname(dirname(path)))[1]
                     new_meta['artist'] = meta.artist or split(dirname(dirname(path)))[1]
                     new_meta['genre'] = meta.genre or split(dirname(dirname(dirname(path))))[1]
                     new_meta['extra'] = json.dumps(meta.extra)
+
+                    if "audio_offest" in new_meta:
+                        new_meta['audio_offset'] = new_meta['audio_offest']
+                        del new_meta['audio_offest']
 
                     img_hash = None
                     if image := meta.get_image():

@@ -59,10 +59,18 @@ function page(url, push = true) {
     xhr.send();
 }
 
+function clickPage(e, url, push = true) {
+    if (e.ctrlKey) {
+        window.open(url, "_blank")
+    } else {
+        page(url, push)
+    }
+}
+
 // Setup function for new page load
 function setupPage() {
     document.querySelectorAll("[data-page]").forEach((element) => {
-        const data_page = () => page(element.getAttribute("data-page"));
+        const data_page = (e) => clickPage(e, element.getAttribute("data-page"));
         element.removeEventListener("click", data_page);
         element.addEventListener("click", data_page);
     });
@@ -204,8 +212,8 @@ menus.build("song",
         "Add to Queue": () => queue.add(menus.selected),
         "Add Following to Queue": () => queue.add_all(menus.selected),
         "elem: Add to Playlist": elem_id("playlist_dropend"),
-        "Go to Album": () => page('/albums/' + menus.selected),
-        "Go to Artist": () => page('/artists/' + menus.selected)
+        "Go to Album": (e) => clickPage(e, '/albums/' + menus.selected),
+        "Go to Artist": (e) => clickPage(e, '/artists/' + menus.selected)
     }
 )
 menus.build("playlist",
@@ -218,8 +226,8 @@ menus.build("playlist",
             playlists.remove(elem_id("playlist").getAttribute("data-id"), Array.from(menus.elem.closest("tbody").children).indexOf(menus.elem.closest("tr")) + 1);
             menus.elem.closest("tr").remove();
         },
-        "Go to Album": () => page('/albums/' + menus.selected),
-        "Go to Artist": () => page('/artists/' + menus.selected)
+        "Go to Album": (e) => clickPage(e, '/albums/' + menus.selected),
+        "Go to Artist": (e) => clickPage(e, '/artists/' + menus.selected)
     }
 )
 menus.build("queue",
@@ -227,22 +235,22 @@ menus.build("queue",
         "Play Now": () => player.start(queue.array[menus.selected]),
         "Play Next": () => queue.unshift(queue.array[menus.selected]),
         "Remove from Queue": () => queue.splice(menus.selected, 1),
-        "Go to Album": () => page('/albums/' + queue.array[menus.selected]),
-        "Go to Artist": () => page('/artists/' + queue.array[menus.selected])
+        "Go to Album": (e) => clickPage(e, '/albums/' + queue.array[menus.selected]),
+        "Go to Artist": (e) => clickPage(e, '/artists/' + queue.array[menus.selected])
     }
 )
 menus.build("album",
     {
-        "Go to Album": () => page('/albums/' + menus.selected),
-        "Go to Artist": () => page('/artists/' + menus.selected)
+        "Go to Album": (e) => clickPage(e, '/albums/' + menus.selected),
+        "Go to Artist": (e) => clickPage(e, '/artists/' + menus.selected)
     }
 )
 menus.build("playing",
     {
         "Play Next": () => queue.unshift(menus.selected),
         "Re-add to Queue": () => queue.add(menus.selected),
-        "Go to Album": () => page('/albums/' + menus.selected),
-        "Go to Artist": () => page('/artists/' + menus.selected)
+        "Go to Album": (e) => clickPage(e, '/albums/' + menus.selected),
+        "Go to Artist": (e) => clickPage(e, '/artists/' + menus.selected)
     }
 )
 

@@ -3,7 +3,7 @@ import json
 from datetime import datetime
 from hashlib import blake2b
 from os import environ
-from os.path import split, dirname
+from os.path import split, dirname, splitext
 
 from flask import Flask, render_template, request, Response, send_file, flash, redirect, url_for, abort
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
@@ -51,7 +51,7 @@ if settings['watchdog']:
                             app.logger.debug(meta)
                             if meta.filesize:
                                 new_meta = meta.as_dict()
-                                new_meta['title'] = meta.title or split(new_path)[1]
+                                new_meta['title'] = meta.title or splitext(split(new_path)[1])[0]
                                 new_meta['album'] = meta.album or split(dirname(new_path))[1]
                                 new_meta['albumartist'] = meta.albumartist or split(dirname(dirname(new_path)))[1]
                                 new_meta['artist'] = meta.artist or split(dirname(dirname(new_path)))[1]
