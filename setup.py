@@ -7,7 +7,8 @@ from sys import argv
 
 import requests
 from sqlalchemy import inspect, text
-from tinytag import TinyTag, TinyTagException
+from tinytag import TinyTag
+from tinytag.tinytag import TinyTagException
 from tqdm import tqdm
 from mmh3 import hash as hash32
 
@@ -218,10 +219,6 @@ def scan():
                     new_meta['artist'] = meta.artist or split(dirname(dirname(path)))[1]
                     new_meta['genre'] = meta.genre or split(dirname(dirname(dirname(path))))[1]
                     new_meta['extra'] = json.dumps(meta.extra)
-
-                    if "audio_offest" in new_meta:
-                        new_meta['audio_offset'] = new_meta['audio_offest']
-                        del new_meta['audio_offest']
 
                     img_hash = None
                     if image := meta.get_image():

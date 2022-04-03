@@ -8,7 +8,8 @@ from os.path import split, dirname, splitext
 from flask import Flask, render_template, request, Response, send_file, flash, redirect, url_for, abort
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from sqlalchemy import func, desc, or_, and_
-from tinytag import TinyTag, TinyTagException
+from tinytag import TinyTag
+from tinytag.tinytag import TinyTagException
 from mmh3 import hash as hash32
 
 from database import *
