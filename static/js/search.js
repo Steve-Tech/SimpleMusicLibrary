@@ -10,8 +10,10 @@ function live_search() {
         let searchNum = 0;
 
         for (let i = 0; i < cards.length; i++) {  // For each card find input in 2 attributes and display none if no match
-            if ((cards[i].getAttribute("data-name")?.toLowerCase().indexOf(input) > -1) ||
-                (cards[i].getAttribute("data-alt")?.toLowerCase().indexOf(input) > -1)) {
+            if (!input.length ||
+                (cards[i].getAttribute("data-name")?.toLowerCase().indexOf(input) > -1) ||
+                (cards[i].getAttribute("data-alt")?.toLowerCase().indexOf(input) > -1) ||
+                (cards[i].getAttribute("data-genre")?.toLowerCase().indexOf(input) > -1)) {
                 cards[i].classList.remove("d-none");  // Shows card if hidden previously
                 searchNum += 1;  // Counts search results
             } else {
