@@ -1,6 +1,4 @@
-export async function onRequestPost(context) {
+export async function onRequestPost(request) {
 	
-	res = new Response("200 OK")
-	
-	return res;
+	return new Response("200 OK");
 }
