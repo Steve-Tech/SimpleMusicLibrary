@@ -42,8 +42,8 @@
         <h1>{{ ['Welcome', 'Hello', 'Hi'] | random }}
             {{ current_user.name or current_user.username.capitalize() }}{{ ['!', '.', ',', ''] | random }}</h1>
         <h2>Listen to some songs and they will appear here!</h2>
-        <button class="btn btn-primary" data-page="/albums">View Songs by Album</button>
-        <button class="btn btn-primary" data-page="/artists">View Songs by Artists</button>
+        <button class="btn btn-primary my-1" data-page="/albums">View Songs by Album</button>
+        <button class="btn btn-primary my-1" data-page="/artists">View Songs by Artists</button>
     {% endif %}
 
     {% if playlists and playlists[0][0] is not none %}
