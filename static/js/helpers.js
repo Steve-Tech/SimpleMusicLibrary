@@ -254,9 +254,33 @@ menus.build("playing",
     }
 )
 
-elem_id("theme").addEventListener("change", (e) =>
-    elem_id("bootstrap").setAttribute("href", "static/css/" +
-            (e.target.value === "Default" ? "bootstrap.min.css" : `themes/${e.target.value}.css`)))
+{   // Handles theme changing
+    let loading_theme = null;  // The theme that is currently loading
+    elem_id("theme").addEventListener("change", (e) => {
+        let new_theme = e.target.value;
+        loading_theme = new_theme;
+        let new_style = document.createElement("link");
+        new_style.rel = "stylesheet";
+        new_style.href = "static/css/" +
+            (new_theme === "Default" ? "bootstrap.min.css" : `themes/${new_theme}.css`);
+
+        new_style.onload = () => {
+            if (loading_theme === new_theme) {
+                // Remove old stylesheet
+                elem_id("bootstrap").remove();
+                new_style.id = "bootstrap";
+
+                elem_id("loading").classList.add("opacity-0");
+            } else {
+                // Another theme is loading, remove this one
+                new_style.remove();
+            }
+        };
+
+        document.head.appendChild(new_style);
+        elem_id("loading").classList.remove("opacity-0");
+    });
+}
 
 window.history.replaceState({"page": window.location.pathname}, document.title);
 setupPage();
