@@ -115,6 +115,12 @@ class Player {
 
     // Play a song setting up the queue
     start(id = queue.next, push = true) {
+        // If no song is selected, do nothing
+        if (!id) {
+            show_toast("No song selected!");
+            return;
+        }
+
         if (!this.audio.paused)
             this.audio.pause();
         this.audio.src = `/song/${id}`;
@@ -357,7 +363,8 @@ shuffle_button.addEventListener("click", () => {
 });
 forward_button.addEventListener("click", () => {
     if (queue.length) player.start(queue.shift());
-    else player.time = player.duration;
+    else if (player.duration) player.time = player.duration;
+    else player.start();
 });
 back_button.addEventListener("click", () => player.start(queue.play_prev(), false));
 
