@@ -1,4 +1,4 @@
 export async function onRequestPost(context) {
 	
-	return Response.redirect('/', 302);
+	return Response.redirect(new URL(context.request.url).origin + '/', 302);
 }
